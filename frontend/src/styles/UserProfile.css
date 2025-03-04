@@ -1,0 +1,45 @@
+.user-profile-container {
+  font-family: 'Arial', sans-serif;
+  margin: 0;
+  padding: 50px 20px;
+  color: #333;
+  max-width: 800px;
+  margin: 0 auto;
+  text-align: center; /* Center-align all content */
+}
+
+.user-profile-container h1 {
+  font-size: 3rem;
+  color: #084974;
+  margin-bottom: 40px;
+}
+
+.profile-content {
+  display: flex;
+  flex-direction: column; /* Stack items vertically */
+  align-items: center; /* Center-align items horizontally */
+  gap: 20px; /* Add space between image and details */
+}
+
+.profile-image img {
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.profile-details {
+  text-align: center; /* Center-align text */
+}
+
+.profile-details h2 {
+  font-size: 2rem;
+  color: #084974;
+  margin-bottom: 10px;
+}
+
+.profile-details p {
+  font-size: 1.2rem;
+  line-height: 1.6;
+  margin-bottom: 10px;
+}

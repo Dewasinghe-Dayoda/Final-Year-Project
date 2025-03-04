@@ -12,6 +12,9 @@ import UserProfile from "./pages/UserProfile";
 import Login from "./auth/Login";
 import Register from "./auth/Register";
 import History from "./pages/History";
+import FAQ from "./pages/FAQ";
+import Notifications from "./pages/Notifications";
+import PrivacyPolicy from "./pages/PrivacyPolicy";
 
 function App() {
   return (
@@ -20,14 +23,17 @@ function App() {
       <Navbar />
       <Routes>
         <Route path="/" element={<Home />} />
-        <Route path="/quickcheck" element={<QuickCheck />} />
-        <Route path="/about" element={<About />} />
-        <Route path="/contact" element={<Contact />} />
-        <Route path="/terms" element={<TermsOfService />} />
-        <Route path="/profile" element={<UserProfile />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
-        <Route path="/history" element={<History/>} />
+        <Route path="/QuickCheck" element={<QuickCheck />} />
+        <Route path="/About" element={<About />} />
+        <Route path="/Contact" element={<Contact />} />
+        <Route path="/Terms" element={<TermsOfService />} />
+        <Route path="/User" element={<UserProfile />} />
+        <Route path="/Login" element={<Login />} />
+        <Route path="/Register" element={<Register />} />
+        <Route path="/History" element={<History/>} />
+        <Route path="/FAQ"     element={<FAQ/>} />
+        <Route path="/Notifications" element={<Notifications/>}/>
+        <Route path="/PrivacyPolicy" element={<PrivacyPolicy/>}/>
       </Routes>
       <Footer />
     </Router>
