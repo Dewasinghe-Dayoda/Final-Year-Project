@@ -11,6 +11,7 @@ import TermsOfService from "./pages/TermsOfService";
 import UserProfile from "./pages/UserProfile";
 import Login from "./auth/Login";
 import Register from "./auth/Register";
+import History from "./pages/History";
 
 function App() {
   return (
@@ -26,6 +27,7 @@ function App() {
         <Route path="/profile" element={<UserProfile />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
+        <Route path="/history" element={<History/>} />
       </Routes>
       <Footer />
     </Router>

@@ -1,6 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import "./Navbar.css"; 
+import "../styles/Navbar.css"; 
 //import logo from "../assets/SkinProScan_logo1.png"; 
 
 const Navbar = () => {

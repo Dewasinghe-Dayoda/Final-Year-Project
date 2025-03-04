@@ -1,7 +1,7 @@
 //If you want a sidebar for navigation inside the User Dashboard.
 import React from "react";
 import { Link } from "react-router-dom";
-import "./Sidebar.css"; // Import CSS
+import "../styles/Sidebar"; // Import CSS
 
 const Sidebar = () => {
   return (

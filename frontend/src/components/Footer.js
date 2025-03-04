@@ -1,7 +1,6 @@
 import React from "react";
 import { FaFacebook, FaTwitter, FaInstagram, FaLinkedin } from "react-icons/fa";
-import "./Footer.css";
-import logo from "../assets/SkinProScan_logo1.png"; // Adjust the path to your logo
+import "../styles/Footer.css";
 
 const Footer = () => {
   return (
@@ -9,7 +8,7 @@ const Footer = () => {
       <div className="footer-container">
         {/* Left Side - Logo and Name */}
         <div className="footer-logo">
-          <img src={logo} alt="SkinPro Logo" />
+          <img src="/SkinProScan_logo1.png" alt="SkinPro Logo" />
           <h2>SkinProScan</h2>
         </div>
 

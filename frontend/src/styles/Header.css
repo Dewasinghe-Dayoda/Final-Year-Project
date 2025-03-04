@@ -1,4 +1,4 @@
-.header {
+/* .header {
     background: linear-gradient(to right, #084974, #bd403c);
     color: white;
     text-align: center;
@@ -16,4 +16,7 @@
     font-size: 18px;
     margin-top: 5px;
   }
-  
+   */
+ .header {
+  display: none;
+ }
