@@ -1,5 +1,6 @@
 import React from "react";
 import "../styles/FAQ.css";
+import faqIcon from "../assets/faq-icon.png"; // Import the FAQ icon
 
 const FAQ = () => {
   const faqs = [
@@ -23,8 +24,13 @@ const FAQ = () => {
       <div className="faq-list">
         {faqs.map((faq, index) => (
           <div key={index} className="faq-item">
-            <h3>{faq.question}</h3>
-            <p>{faq.answer}</p>
+            <div className="faq-text">
+              <h3>{faq.question}</h3>
+              <p>{faq.answer}</p>
+            </div>
+            <div className="faq-icon">
+              <img src={faqIcon} alt="FAQ Icon" />
+            </div>
           </div>
         ))}
       </div>
