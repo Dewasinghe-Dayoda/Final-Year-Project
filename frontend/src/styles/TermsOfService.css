@@ -1,27 +1,42 @@
 .terms-container {
-    font-family: 'Arial', sans-serif;
-    margin: 0;
-    padding: 50px 20px;
-    color: #333;
-    max-width: 800px;
-    margin: 0 auto;
-  }
-  
-  .terms-container h1 {
-    font-size: 3rem;
-    color: #084974;
-    margin-bottom: 40px;
-    text-align: center;
-  }
-  
-  .terms-container h2 {
-    font-size: 2rem;
-    color: #084974;
-    margin-bottom: 20px;
-  }
-  
-  .terms-container p {
-    font-size: 1.2rem;
-    line-height: 1.6;
-    margin-bottom: 20px;
-  }
+  font-family: 'Arial', sans-serif;
+  margin: 0;
+  padding: 50px 20px;
+  color: #333;
+  max-width: 800px;
+  margin: 0 auto;
+  position: relative;
+  background: url("../assets/service.png") no-repeat center center/cover;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.terms-content {
+  /* background: rgba(255, 255, 255, 0.8); Adds a semi-transparent overlay */
+  background-color: transparent;
+  padding: 40px;
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  max-width: 90%;
+  text-align: center;
+}
+
+.terms-content h1 {
+  font-size: 4rem;
+  color: #084974;
+  margin-bottom: 20px;
+}
+
+.terms-content h2 {
+  font-size: 2.2rem;
+  color: #084974;
+  margin-bottom: 15px;
+}
+
+.terms-content p {
+  font-size: 1.6rem;
+  line-height: 1.6;
+  margin-bottom: 15px;
+}
