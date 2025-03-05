@@ -53,20 +53,22 @@ const UserProfile = () => {
   const user = {
     name: "John Doe",
     email: "john.doe@example.com",
-    joined: "2023-01-01",
+    joined: "2024-01-06",
   };
 
   return (
     <div className="user-profile-container">
-      <h1>User Profile</h1>
-      <div className="profile-content">
-        <div className="profile-image">
-          <img src={profileImage} alt="Profile" />
-        </div>
-        <div className="profile-details">
-          <h2>{user.name}</h2>
-          <p>Email: {user.email}</p>
-          <p>Member since: {user.joined}</p>
+      <div className="user-profile-frame">
+        <h1>User Profile</h1>
+        <div className="profile-content">
+          <div className="profile-image">
+            <img src={profileImage} alt="Profile" />
+          </div>
+          <div className="profile-details">
+            <h2>{user.name}</h2>
+            <p>Email: {user.email}</p>
+            <p>Member since: {user.joined}</p>
+          </div>
         </div>
       </div>
     </div>

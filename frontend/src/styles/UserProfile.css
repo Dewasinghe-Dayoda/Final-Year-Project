@@ -1,24 +1,33 @@
 .user-profile-container {
   font-family: 'Arial', sans-serif;
-  margin: 0;
-  padding: 50px 20px;
-  color: #333;
-  max-width: 800px;
-  margin: 0 auto;
-  text-align: center; /* Center-align all content */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background-color: #f4f4f4; /* Light gray background */
 }
 
-.user-profile-container h1 {
-  font-size: 3rem;
+.user-profile-frame {
+  background-color: rgb(218, 219, 221);
+  padding: 40px;
+  border-radius: 20px;
+  max-width: 500px;
+  width: 90%;
+  text-align: center;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.user-profile-frame h1 {
+  font-size: 2.5rem;
   color: #084974;
-  margin-bottom: 40px;
+  margin-bottom: 30px;
 }
 
 .profile-content {
   display: flex;
-  flex-direction: column; /* Stack items vertically */
-  align-items: center; /* Center-align items horizontally */
-  gap: 20px; /* Add space between image and details */
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
 }
 
 .profile-image img {
@@ -26,10 +35,11 @@
   height: 150px;
   border-radius: 50%;
   object-fit: cover;
+  /*border: 4px solid white;  Adds a nice border effect */
 }
 
 .profile-details {
-  text-align: center; /* Center-align text */
+  text-align: center;
 }
 
 .profile-details h2 {
