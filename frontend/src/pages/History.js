@@ -47,6 +47,7 @@
 // export default History;
 import React from "react";
 import "../styles/History.css";
+import historyImage from "../assets/history.png";  // Import the image
 
 const History = () => {
   const historyData = [
@@ -61,25 +62,27 @@ const History = () => {
       confidence: "08%",
     },
     {
-        date: "2025-06-05",
-        condition: "Cellulitis",
-        confidence: "20%",
-      },
-      {
-        date: "2025-08-10",
-        condition: "No Condition",
-        confidence: "100%",
-      },
-      {
-        date: "2025-09-25",
-        condition: "Other condition",
-        confidence: "45%",
-      },
+      date: "2025-06-05",
+      condition: "Cellulitis",
+      confidence: "20%",
+    },
+    {
+      date: "2025-08-10",
+      condition: "No Condition",
+      confidence: "100%",
+    },
+    {
+      date: "2025-09-25",
+      condition: "Other condition",
+      confidence: "45%",
+    },
   ];
 
   return (
     <div className="history-container">
-      <h1>Scan History</h1>
+      <h1>
+        <img src={historyImage} alt="History Icon" className="history-image" /> Scan History
+      </h1>
       <table>
         <thead>
           <tr>
@@ -103,3 +106,4 @@ const History = () => {
 };
 
 export default History;
+
