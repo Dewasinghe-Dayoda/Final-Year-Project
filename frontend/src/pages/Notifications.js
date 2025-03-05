@@ -3,6 +3,7 @@
 
 import React from "react";
 import "../styles/Notifications.css";
+import notifyIcon from "../assets/notify.png"; // Import the notification icon
 
 const Notifications = () => {
   const notifications = [
@@ -24,8 +25,11 @@ const Notifications = () => {
       <div className="notifications-list">
         {notifications.map((notification) => (
           <div key={notification.id} className="notification-item">
-            <p>{notification.message}</p>
-            <span>{notification.date}</span>
+            <div className="notification-text">
+              <p>{notification.message}</p>
+              <span>{notification.date}</span>
+            </div>
+            <img src={notifyIcon} alt="Notification Icon" className="notification-icon" />
           </div>
         ))}
       </div>
