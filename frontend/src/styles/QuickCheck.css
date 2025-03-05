@@ -8,7 +8,7 @@
   }
   
   .quick-check-container h1 {
-    font-size: 3rem;
+    font-size:3em;
     color: #084974;
     margin-bottom: 40px;
     text-align: center;
@@ -29,7 +29,7 @@
   }
   
   .upload-section p {
-    font-size: 1.2rem;
+    font-size: 2em;
     color: #084974;
   }
   
@@ -49,7 +49,7 @@
   }
   
   .symptoms-section label {
-    font-size: 1.2rem;
+    font-size: 1.5rem;
     color: #084974;
     display: block;
     margin-bottom: 10px;
@@ -60,7 +60,7 @@
     padding: 10px;
     border: 1px solid #ddd;
     border-radius: 5px;
-    font-size: 1rem;
+    font-size: 1.3rem;
   }
   
   button {
@@ -68,5 +68,5 @@
     color: white;
     border: none;
     padding: 15px 30px;
-    font-size: 1;
+    font-size: 1.5em;
   }
