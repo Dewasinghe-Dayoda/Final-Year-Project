@@ -7,10 +7,10 @@ const fs = require('fs'); // Add this to read files
 const History = require('../models/History'); // Import the History model
 const authMiddleware = require('../middleware/authMiddleware'); // Ensure user is authenticated
 
-// Load your TensorFlow.js model
+// Load TensorFlow.js model
 let model;
 const loadModel = async () => {
-    model = await tf.loadLayersModel('D:/SE final year/final project individual/Final year project/skin_disease_awareness_website/Skin_Pro/skin-disease-project/trained_model/tfjs_model/model.json'); // Update the path to your model
+    model = await tf.loadLayersModel('file://D:/SE final year/final project individual/Final year project/skin_disease_awareness_website/Skin_Pro/skin-disease-project/trained_model/tfjs_model/model.json'); // Update the path to your model
 };
 loadModel();
 

@@ -1,4 +1,4 @@
-const { verifyToken } = require('../utils/authUtils');
+const { verifyToken } = require ('../utils/authUtils');
 
 const authMiddleware = (req, res, next) => {
     const token = req.header('Authorization')?.replace('Bearer ', '');

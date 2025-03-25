@@ -19,6 +19,7 @@ const Footer = () => {
           <a href="/quickcheck">Quick Check</a>
           <a href="/contact">Contact</a>
           <a href="/terms">Terms of Service</a>
+          <a href="/privacypolicy">Privacy Policy</a>
         </div>
 
         {/* Right Side - Contact & Social Media */}
