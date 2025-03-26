@@ -10,7 +10,9 @@ const authMiddleware = require('../middleware/authMiddleware'); // Ensure user i
 // Load TensorFlow.js model
 let model;
 const loadModel = async () => {
-    model = await tf.loadLayersModel('file://D:/SE final year/final project individual/Final year project/skin_disease_awareness_website/Skin_Pro/skin-disease-project/trained_model/tfjs_model/model.json'); // Update the path to your model
+    model = await tf.loadLayersModel(
+        "file://../trained_model/tfjs_model/model.json"
+    ); // Update the path to your model
 };
 loadModel();
 
