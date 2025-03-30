@@ -91,7 +91,7 @@ const QuickCheck = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    // Add logic for image and symptom submission
+    // Logic for image and symptom submission
   };
 
   return (

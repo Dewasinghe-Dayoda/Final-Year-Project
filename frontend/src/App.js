@@ -15,6 +15,7 @@ import History from "./pages/History";
 import FAQ from "./pages/FAQ";
 import Notifications from "./pages/Notifications";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
+import SkinCheck from "./components/SkinCheck";
 
 function App() {
   return (
@@ -34,6 +35,7 @@ function App() {
         <Route path="/FAQ"     element={<FAQ/>} />
         <Route path="/Notifications" element={<Notifications/>}/>
         <Route path="/PrivacyPolicy" element={<PrivacyPolicy/>}/>
+        <Route path="/SkinCheck" element={<SkinCheck/>}/>
       </Routes>
       <Footer />
     </Router>
