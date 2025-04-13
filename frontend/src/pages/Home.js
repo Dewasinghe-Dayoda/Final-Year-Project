@@ -1,10 +1,13 @@
 import React from "react";
-import "../styles/Home.css";  // Import the Home CSS file
+import { useNavigate } from "react-router-dom"; // ADDED THIS IMPORT
+import "../styles/Home.css";
 import featureImage1 from "../assets/feature_1.jpg";
 import featureImage2 from "../assets/feature_2.jpg";
 import featureImage3 from "../assets/feature_3.jpg";
 
 const Home = () => {
+  const navigate = useNavigate(); // ADDED THIS LINE
+
   return (
     <div className="home-container">
       <section className="hero-section">
@@ -15,9 +18,15 @@ const Home = () => {
           We help you identify conditions like</p>
         <p className="hero-description"> cellulitis, impetigo, athlete's foot, and ringworm using advanced image processing technology.
         </p>
-        <button className="cta-button">Start Your Skin Check</button>
+        <button 
+          className="cta-button" 
+          onClick={() => navigate('/QuickCheck')} // ADDED THIS ONCLICK HANDLER
+        >
+          Start Your Skin Check
+        </button>
       </section>
 
+      {/* Rest of your existing Home.js code remains the same */}
       <section className="features-section">
         <h2 className="section-title">How It Works</h2>
         <div className="features-container">
