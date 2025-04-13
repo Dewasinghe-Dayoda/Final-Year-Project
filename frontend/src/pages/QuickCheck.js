@@ -1,129 +1,273 @@
-// import React, { useState } from 'react';
-// import * as tf from '@tensorflow/tfjs';
-// import api from '../api'; // Import the API utility
-
-// const QuickCheck = () => {
-//     const [image, setImage] = useState(null);
-//     const [prediction, setPrediction] = useState(null);
-//     const [loading, setLoading] = useState(false); // Add loading state
-
-//     // Load the TensorFlow.js model
-//     const loadModel = async () => {
-//         const model = await tf.loadLayersModel('D:/SE final year/final project individual/Final year project/skin_disease_awareness_website/Skin_Pro/skin-disease-project/trained_model/tfjs_model/model.json');
-//         return model;
-//     };
-
-//     // Handle image upload and prediction
-//     const handleImageUpload = async (e) => {
-//         const file = e.target.files[0];
-//         if (!file) return;
-
-//         setLoading(true); // Set loading to true
-
-//         try {
-//             // Option 1: Use TensorFlow.js for prediction (client-side)
-//             const img = new Image();
-//             img.src = URL.createObjectURL(file);
-//             img.onload = async () => {
-//                 const tensor = tf.browser
-//                     .fromPixels(img)
-//                     .resizeNearestNeighbor([224, 224]) // Resize to match model input size
-//                     .toFloat()
-//                     .expandDims(); // Add batch dimension
-
-//                 const model = await loadModel(); // Load the model
-//                 const predictions = await model.predict(tensor); // Make prediction
-//                 const predictedClass = predictions.argMax(1).dataSync()[0]; // Get predicted class
-//                 const confidence = predictions.max().dataSync()[0]; // Get confidence
-
-//                 setPrediction({ predictedClass, confidence }); // Update prediction state
-//                 setLoading(false); // Set loading to false
-//             };
-
-//             // Option 2: Use backend API for prediction (server-side)
-//             /*
-//             const formData = new FormData();
-//             formData.append('image', file);
-
-//             const res = await api.post('/api/predict', formData, {
-//                 headers: { 'Content-Type': 'multipart/form-data' },
-//             });
-//             setPrediction(res.data); // Update prediction state
-//             setLoading(false); // Set loading to false
-//             */
-//         } catch (error) {
-//             console.error(error);
-//             alert('Failed to process image');
-//             setLoading(false); // Set loading to false
-//         }
-//     };
-
-//     return (
-//         <div className="quick-check">
-//             <h2>Quick Check</h2>
-//             <input type="file" accept="image/*" onChange={handleImageUpload} disabled={loading} />
-//             {loading && <p>Processing image...</p>}
-//             {prediction && (
-//                 <div>
-//                     <p>Predicted Class: {prediction.predictedClass}</p>
-//                     <p>Confidence: {(prediction.confidence * 100).toFixed(2)}%</p>
-//                 </div>
-//             )}
-//         </div>
-//     );
-// };
-
-// export default QuickCheck;
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import "../styles/QuickCheck.css";
-import uploadIcon from "../assets/upload-icon.png"; // Example image path
+import uploadIcon from "../assets/upload-icon.png";
 
 const QuickCheck = () => {
+  const navigate = useNavigate();
   const [image, setImage] = useState(null);
-  const [symptoms, setSymptoms] = useState("");
+  const [results, setResults] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [symptoms, setSymptoms] = useState({
+    itching: "",
+    redness: "",
+    swelling: "",
+    pain: "",
+    scaling: "",
+    pus: "",
+  });
 
   const handleImageUpload = (e) => {
     const file = e.target.files[0];
     if (file) {
       setImage(URL.createObjectURL(file));
+      setResults(null); // Clear previous results when new image is uploaded
     }
   };
 
-  const handleSubmit = (e) => {
+  const handleSymptomChange = (symptom, value) => {
+    setSymptoms({
+      ...symptoms,
+      [symptom]: value,
+    });
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Logic for image and symptom submission
+    setLoading(true);
+    
+    // Simulate API call to your classification model
+    try {
+      // In a real app, you would send the image and symptoms to your backend
+      // const response = await axios.post('/api/classify', { image, symptoms });
+      
+      // Mock response - replace with actual API call
+      setTimeout(() => {
+        const mockResults = {
+          condition: "Fungal Infection",
+          confidence: 87,
+          description: "The AI analysis suggests a high likelihood of fungal infection based on the visual patterns and your reported symptoms.",
+          recommendations: [
+            "Apply antifungal cream twice daily",
+            "Keep the area clean and dry",
+            "Avoid scratching the affected area"
+          ]
+        };
+        setResults(mockResults);
+        setLoading(false);
+      }, 2000);
+    } catch (error) {
+      console.error("Error analyzing image:", error);
+      setLoading(false);
+    }
   };
 
   return (
     <div className="quick-check-container">
-      <h1>Quick Check</h1>
-      <form onSubmit={handleSubmit}>
-        <div className="upload-section">
-          <label htmlFor="image-upload">
-            <img src={uploadIcon} alt="Upload" />
-            <p><strong><u>Upload an image of your skin condition</u></strong></p>
-          </label>
-          <input
-            id="image-upload"
-            type="file"
-            accept="image/*"
-            onChange={handleImageUpload}
-            required
-          />
-          {image && <img src={image} alt="Uploaded" className="uploaded-image" />}
+      <h1>Skin Condition Check</h1>
+      
+      {!results ? (
+        <form onSubmit={handleSubmit}>
+          <div className="upload-section">
+            <h2>Upload Skin Image</h2>
+            <label htmlFor="image-upload" className="upload-label">
+              <img src={uploadIcon} alt="Upload" className="upload-icon" />
+              <p><strong>Click to upload an image of your skin condition</strong></p>
+              <p className="upload-hint">(Clear, well-lit images work best)</p>
+            </label>
+            <input
+              id="image-upload"
+              type="file"
+              accept="image/*"
+              onChange={handleImageUpload}
+              required
+            />
+            {image && (
+              <div className="image-preview">
+                <img src={image} alt="Uploaded preview" className="uploaded-image" />
+              </div>
+            )}
+          </div>
+
+          <div className="symptoms-section">
+            <h2>Tell Us About Your Symptoms</h2>
+            <p>Please answer the following questions:</p>
+            
+            <div className="symptom-question">
+              <p>1. Do you experience itching in the affected area?</p>
+              <div className="yes-no-buttons">
+                <button
+                  type="button"
+                  className={`option-button ${symptoms.itching === 'yes' ? 'selected' : ''}`}
+                  onClick={() => handleSymptomChange('itching', 'yes')}
+                >
+                  Yes
+                </button>
+                <button
+                  type="button"
+                  className={`option-button ${symptoms.itching === 'no' ? 'selected' : ''}`}
+                  onClick={() => handleSymptomChange('itching', 'no')}
+                >
+                  No
+                </button>
+              </div>
+            </div>
+
+            <div className="symptom-question">
+              <p>2. Is there noticeable redness?</p>
+              <div className="yes-no-buttons">
+                <button
+                  type="button"
+                  className={`option-button ${symptoms.redness === 'yes' ? 'selected' : ''}`}
+                  onClick={() => handleSymptomChange('redness', 'yes')}
+                >
+                  Yes
+                </button>
+                <button
+                  type="button"
+                  className={`option-button ${symptoms.redness === 'no' ? 'selected' : ''}`}
+                  onClick={() => handleSymptomChange('redness', 'no')}
+                >
+                  No
+                </button>
+              </div>
+            </div>
+
+            <div className="symptom-question">
+              <p>3. Is there any swelling?</p>
+              <div className="yes-no-buttons">
+                <button
+                  type="button"
+                  className={`option-button ${symptoms.swelling === 'yes' ? 'selected' : ''}`}
+                  onClick={() => handleSymptomChange('swelling', 'yes')}
+                >
+                  Yes
+                </button>
+                <button
+                  type="button"
+                  className={`option-button ${symptoms.swelling === 'no' ? 'selected' : ''}`}
+                  onClick={() => handleSymptomChange('swelling', 'no')}
+                >
+                  No
+                </button>
+              </div>
+            </div>
+
+            <div className="symptom-question">
+              <p>4. Do you feel pain in the affected area?</p>
+              <div className="yes-no-buttons">
+                <button
+                  type="button"
+                  className={`option-button ${symptoms.pain === 'yes' ? 'selected' : ''}`}
+                  onClick={() => handleSymptomChange('pain', 'yes')}
+                >
+                  Yes
+                </button>
+                <button
+                  type="button"
+                  className={`option-button ${symptoms.pain === 'no' ? 'selected' : ''}`}
+                  onClick={() => handleSymptomChange('pain', 'no')}
+                >
+                  No
+                </button>
+              </div>
+            </div>
+
+            <div className="symptom-question">
+              <p>5. Is there any scaling or flaking of skin?</p>
+              <div className="yes-no-buttons">
+                <button
+                  type="button"
+                  className={`option-button ${symptoms.scaling === 'yes' ? 'selected' : ''}`}
+                  onClick={() => handleSymptomChange('scaling', 'yes')}
+                >
+                  Yes
+                </button>
+                <button
+                  type="button"
+                  className={`option-button ${symptoms.scaling === 'no' ? 'selected' : ''}`}
+                  onClick={() => handleSymptomChange('scaling', 'no')}
+                >
+                  No
+                </button>
+              </div>
+            </div>
+
+            <div className="symptom-question">
+              <p>6. Is there any pus or discharge?</p>
+              <div className="yes-no-buttons">
+                <button
+                  type="button"
+                  className={`option-button ${symptoms.pus === 'yes' ? 'selected' : ''}`}
+                  onClick={() => handleSymptomChange('pus', 'yes')}
+                >
+                  Yes
+                </button>
+                <button
+                  type="button"
+                  className={`option-button ${symptoms.pus === 'no' ? 'selected' : ''}`}
+                  onClick={() => handleSymptomChange('pus', 'no')}
+                >
+                  No
+                </button>
+              </div>
+            </div>
+
+            <button type="submit" className="submit-button" disabled={loading}>
+              {loading ? 'Analyzing...' : 'Analyze Skin Condition'}
+            </button>
+          </div>
+        </form>
+      ) : (
+        <div className="results-section">
+          <h2>Analysis Results</h2>
+          
+          <div className="result-card">
+            <h3>Condition: {results.condition}</h3>
+            <div className="confidence-meter">
+              <div className="confidence-fill" style={{ width: `${results.confidence}%` }}></div>
+              <span>{results.confidence}% Confidence</span>
+            </div>
+            
+            <p className="result-description">{results.description}</p>
+            
+            <div className="recommendations">
+              <h4>Recommendations:</h4>
+              <ul>
+                {results.recommendations.map((item, index) => (
+                  <li key={index}>{item}</li>
+                ))}
+              </ul>
+            </div>
+            
+            <div className="action-buttons">
+              <button 
+                className="appointment-button"
+                onClick={() => navigate('/Contact')} // Or create a specific appointment page
+              >
+                Book Dermatologist Appointment
+              </button>
+              <button 
+                className="new-check-button"
+                onClick={() => {
+                  setImage(null);
+                  setResults(null);
+                  setSymptoms({
+                    itching: "",
+                    redness: "",
+                    swelling: "",
+                    pain: "",
+                    scaling: "",
+                    pus: "",
+                  });
+                }}
+              >
+                Perform New Check
+              </button>
+            </div>
+          </div>
         </div>
-        <div className="symptoms-section">
-          <label htmlFor="symptoms">Describe your symptoms:</label>
-          <textarea
-            id="symptoms"
-            value={symptoms}
-            onChange={(e) => setSymptoms(e.target.value)}
-            rows="5"
-            required
-          />
-        </div>
-        <button type="submit">Submit</button>
-      </form>
+      )}
     </div>
   );
 };
