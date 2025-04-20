@@ -45,14 +45,17 @@ export const getUserProfile = () => API.get('/profile');
 export const updateProfile = (profileData) => API.put('/profile', profileData);
 
 // Symptoms Endpoints
-export const getSymptomQuestions = (disease) => API.get(`/symptoms/questions?disease=${disease}`);
-export const submitSymptoms = (symptomsData) => API.post('/symptoms/submit', symptomsData);
+export const getSymptomQuestions = (disease) => 
+  API.get(`/symptoms/questions?disease=${encodeURIComponent(disease)}`);
 
+export const submitSymptoms = (data) => 
+  API.post('/symptoms/submit', data);
 
-// export const getSymptomQuestions = (disease) => 
-//   api.get(`/symptoms/questions?disease=${encodeURIComponent(disease)}`);
+// Appointment Booking Endpoints
+export const getClinics = (location) => 
+  API.get(`/clinics?location=${encodeURIComponent(location)}`);
 
-// export const submitSymptoms = (data) => 
-//   api.post('/symptoms/submit', data);
+export const bookAppointment = (bookingData) => 
+  API.post('/clinics/book', bookingData);
 
 export default API;

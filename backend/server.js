@@ -6,6 +6,7 @@ const predictRoutes = require('./routes/predictRoutes');
 const historyRoutes = require('./routes/historyRoutes');
 const axios = require('axios');
 const symptomRoutes = require('./routes/symptomRoutes');
+const clinicRoutes = require('./routes/clinicRoutes');
 
 const app = express();
 app.use(cors());
@@ -19,6 +20,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/predict', predictRoutes);
 app.use('/api/history', historyRoutes);
 app.use('/api/symptoms', symptomRoutes);
+app.use('/api/clinics', clinicRoutes);
 
 const PORT = process.env.PORT || 5000;
 app.get('/', (req, res) => {

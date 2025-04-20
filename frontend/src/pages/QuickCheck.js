@@ -54,7 +54,7 @@ const QuickCheck = () => {
         model.dispose();
       }
     };
-  }, []);
+  }, [model]);
 
   const handleImageUpload = (e) => {
     const file = e.target.files[0];

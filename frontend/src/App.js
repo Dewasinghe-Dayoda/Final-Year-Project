@@ -17,6 +17,7 @@ import FAQ from "./pages/FAQ";
 import Notifications from "./pages/Notifications";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import SkinCheck from "./components/SkinCheck";
+import AppointmentPage from "./pages/AppointmentPage";
 
 function App() {
   // TensorFlow.js memory management
@@ -83,6 +84,7 @@ function App() {
         <Route path="/Notifications" element={<Notifications />} />
         <Route path="/PrivacyPolicy" element={<PrivacyPolicy />} />
         <Route path="/SkinCheck" element={<SkinCheck />} />
+        <Route path="/AppointmentPage" element={<AppointmentPage />} />
       </Routes>
       <Footer />
     </Router>
