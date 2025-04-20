@@ -48,4 +48,11 @@ export const updateProfile = (profileData) => API.put('/profile', profileData);
 export const getSymptomQuestions = (disease) => API.get(`/symptoms/questions?disease=${disease}`);
 export const submitSymptoms = (symptomsData) => API.post('/symptoms/submit', symptomsData);
 
+
+// export const getSymptomQuestions = (disease) => 
+//   api.get(`/symptoms/questions?disease=${encodeURIComponent(disease)}`);
+
+// export const submitSymptoms = (data) => 
+//   api.post('/symptoms/submit', data);
+
 export default API;

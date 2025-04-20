@@ -4,6 +4,7 @@ import * as tf from '@tensorflow/tfjs';
 import "../styles/QuickCheck.css";
 import uploadIcon from "../assets/upload-icon.png";
 import { savePredictionResult } from '../api';
+import SymptomForm from '../components/SymptomForm';
 
 const QuickCheck = () => {
   const navigate = useNavigate();
@@ -268,6 +269,13 @@ const QuickCheck = () => {
                 ))}
               </ul>
             </div>
+
+            {symptoms.length > 0 && (
+              <SymptomForm 
+                disease={results.allResults[0].disease} 
+                onComplete={() => navigate('/appointment')}
+              />
+            )}
             
             <div className="action-buttons">
               <button 

@@ -5,6 +5,7 @@ const cors = require('cors');
 const predictRoutes = require('./routes/predictRoutes');
 const historyRoutes = require('./routes/historyRoutes');
 const axios = require('axios');
+const symptomRoutes = require('./routes/symptomRoutes');
 
 const app = express();
 app.use(cors());
@@ -17,6 +18,7 @@ connectDB(); // Call the connectDB function
 app.use('/api/auth', authRoutes);
 app.use('/api/predict', predictRoutes);
 app.use('/api/history', historyRoutes);
+app.use('/api/symptoms', symptomRoutes);
 
 const PORT = process.env.PORT || 5000;
 app.get('/', (req, res) => {
