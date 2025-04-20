@@ -1,5 +1,6 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import * as tf from '@tensorflow/tfjs';
 import Header from "./components/Header";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
@@ -18,6 +19,52 @@ import PrivacyPolicy from "./pages/PrivacyPolicy";
 import SkinCheck from "./components/SkinCheck";
 
 function App() {
+  // TensorFlow.js memory management
+  useEffect(() => {
+    let isMounted = true;
+
+    const initializeTF = async () => {
+      try {
+        // Wait for TensorFlow to be ready
+        await tf.ready();
+        
+        if (isMounted) {
+          // Optimize memory usage
+          tf.ENV.set('WEBGL_DELETE_TEXTURE_THRESHOLD', 0);
+          
+          // Enable production mode if in production
+          if (process.env.NODE_ENV === 'production') {
+            tf.enableProdMode();
+          }
+          
+          console.log('TensorFlow initialized with backend:', tf.getBackend());
+        }
+      } catch (error) {
+        console.error('TensorFlow initialization error:', error);
+      }
+    };
+
+    initializeTF();
+
+    // Cleanup function
+    return () => {
+      isMounted = false;
+      
+      try {
+        // Only clean up if backend exists
+        if (tf.getBackend()) {
+          console.log('Cleaning up TensorFlow resources');
+          tf.disposeVariables();
+          
+          // Skip removeBackend() to prevent errors
+          // tf.removeBackend() is problematic in React's dev mode
+        }
+      } catch (error) {
+        console.warn('Error during TensorFlow cleanup:', error);
+      }
+    };
+  }, []);
+
   return (
     <Router>
       <Header />
@@ -31,11 +78,11 @@ function App() {
         <Route path="/User" element={<UserProfile />} />
         <Route path="/Login" element={<Login />} />
         <Route path="/Register" element={<Register />} />
-        <Route path="/History" element={<History/>} />
-        <Route path="/FAQ"     element={<FAQ/>} />
-        <Route path="/Notifications" element={<Notifications/>}/>
-        <Route path="/PrivacyPolicy" element={<PrivacyPolicy/>}/>
-        <Route path="/SkinCheck" element={<SkinCheck/>}/>
+        <Route path="/History" element={<History />} />
+        <Route path="/FAQ" element={<FAQ />} />
+        <Route path="/Notifications" element={<Notifications />} />
+        <Route path="/PrivacyPolicy" element={<PrivacyPolicy />} />
+        <Route path="/SkinCheck" element={<SkinCheck />} />
       </Routes>
       <Footer />
     </Router>
@@ -43,4 +90,3 @@ function App() {
 }
 
 export default App;
-//<Route path="/profile" element={<ProtectedRoute user={user}><UserProfile /></ProtectedRoute>} />
