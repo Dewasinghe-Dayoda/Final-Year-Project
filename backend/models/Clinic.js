@@ -12,22 +12,26 @@ const clinicSchema = new mongoose.Schema({
   location: {
     type: String,
     required: true,
-    index: true // For faster queries
+    index: true
   },
   phone: {
     type: String,
     required: true
   },
-  email: {
-    type: String
-  },
+  email: String,
+  website: String,
   services: [String],
+  openingHours: String,
+  description: String,
+  images: [String],
   doctors: [{
     name: String,
     specialization: String,
+    qualifications: String,
+    experience: String,
     availability: [{
       day: String,
-      slots: [String] // e.g. ["09:00-10:00", "14:00-15:00"]
+      slots: [String]
     }]
   }],
   createdAt: {
@@ -36,7 +40,6 @@ const clinicSchema = new mongoose.Schema({
   }
 });
 
-// Create 2Dsphere index for geospatial queries
 clinicSchema.index({ location: 'text' });
 
 module.exports = mongoose.model('Clinic', clinicSchema);

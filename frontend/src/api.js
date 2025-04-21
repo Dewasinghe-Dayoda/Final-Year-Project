@@ -51,11 +51,9 @@ export const getSymptomQuestions = (disease) =>
 export const submitSymptoms = (data) => 
   API.post('/symptoms/submit', data);
 
-// Appointment Booking Endpoints
-export const getClinics = (location) => 
-  API.get(`/clinics?location=${encodeURIComponent(location)}`);
-
-export const bookAppointment = (bookingData) => 
-  API.post('/clinics/book', bookingData);
+// Clinic Endpoints
+export const getClinics = (location) => API.get(`/clinics?location=${encodeURIComponent(location)}`);
+export const getClinicDetails = (id) => API.get(`/clinics/${id}`);
+export const bookAppointment = (bookingData) => API.post('/clinics/book', bookingData);
 
 export default API;

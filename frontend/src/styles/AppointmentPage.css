@@ -1,0 +1,142 @@
+.appointment-container {
+  max-width: 1200px;
+  margin: 2rem auto;
+  padding: 1.5rem;
+}
+
+.appointment-container h2 {
+  text-align: center;
+  color: #2c3e50;
+  margin-bottom: 2rem;
+  font-size: 1.8rem;
+}
+
+.loading-message {
+  text-align: center;
+  color: #3498db;
+  font-size: 1.1rem;
+  padding: 1rem;
+}
+
+.error-message {
+  color: #e74c3c;
+  background-color: #fdecea;
+  padding: 1rem;
+  border-radius: 5px;
+  text-align: center;
+  margin: 1rem 0;
+}
+
+.clinics-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  gap: 2rem;
+}
+
+.clinic-card {
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  overflow: hidden;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  background: #fff;
+}
+
+.clinic-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+}
+
+.clinic-image {
+  height: 200px;
+  overflow: hidden;
+}
+
+.clinic-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.5s ease;
+}
+
+.clinic-card:hover .clinic-image img {
+  transform: scale(1.1);
+}
+
+.clinic-info {
+  padding: 1.5rem;
+}
+
+.clinic-info h3 {
+  color: #2c3e50;
+  margin-bottom: 0.5rem;
+  font-size: 1.3rem;
+}
+
+.address, .opening-hours {
+  color: #555;
+  margin: 0.5rem 0;
+  font-size: 0.95rem;
+}
+
+.contact-info {
+  margin: 1rem 0;
+  padding: 0.8rem;
+  background: #f8f9fa;
+  border-radius: 5px;
+}
+
+.contact-info p {
+  margin: 0.3rem 0;
+  font-size: 0.9rem;
+}
+
+.services {
+  margin: 1rem 0;
+}
+
+.services h4 {
+  margin-bottom: 0.5rem;
+  color: #34495e;
+}
+
+.services ul {
+  list-style-type: none;
+  padding-left: 0;
+}
+
+.services li {
+  padding: 0.3rem 0;
+  color: #555;
+  font-size: 0.9rem;
+}
+
+.clinic-actions {
+  margin-top: 1.5rem;
+}
+
+.details-btn {
+  background: #3498db;
+  color: white;
+  padding: 0.8rem;
+  width: 100%;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 500;
+  transition: background 0.3s;
+}
+
+.details-btn:hover {
+  background: #2980b9;
+}
+
+@media (max-width: 768px) {
+  .clinics-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .appointment-container {
+    padding: 1rem;
+  }
+}
