@@ -1,0 +1,40 @@
+.awareness-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+  }
+  
+  .awareness-title {
+    text-align: center;
+    color: #2c3e50;
+    margin-bottom: 20px;
+    font-size: 2.5rem;
+  }
+  
+  .awareness-intro {
+    text-align: center;
+    color: #555;
+    margin-bottom: 40px;
+    font-size: 1.1rem;
+    max-width: 800px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  
+  .disease-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    gap: 30px;
+    padding: 20px 0;
+  }
+  
+  /* Responsive adjustments */
+  @media (max-width: 768px) {
+    .disease-grid {
+      grid-template-columns: 1fr;
+    }
+    
+    .awareness-title {
+      font-size: 2rem;
+    }
+  }

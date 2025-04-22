@@ -19,6 +19,11 @@ import PrivacyPolicy from "./pages/PrivacyPolicy";
 import SkinCheck from "./components/SkinCheck";
 import AppointmentPage from "./pages/AppointmentPage";
 import ClinicDetailsPage from './pages/ClinicDetailsPage';
+import AwarenessPage from './pages/AwarenessPage';
+import Cellulitis from './pages/DiseaseDetails/Cellulitis';
+import Impetigo from './pages/DiseaseDetails/Impetigo';
+import AthletesFoot from './pages/DiseaseDetails/AthletesFoot';
+import Ringworm from './pages/DiseaseDetails/Ringworm';
 
 function App() {
   // TensorFlow.js memory management
@@ -87,6 +92,11 @@ function App() {
         <Route path="/SkinCheck" element={<SkinCheck />} />
         <Route path="/AppointmentPage" element={<AppointmentPage />} />
         <Route path="/clinics/:id" element={<ClinicDetailsPage />} />
+        <Route path="/awareness" element={<AwarenessPage />} />
+        <Route path="/disease/cellulitis" element={<Cellulitis />} />
+        <Route path="/disease/impetigo" element={<Impetigo />} />
+        <Route path="/disease/athletes-foot" element={<AthletesFoot />} />
+        <Route path="/disease/ringworm" element={<Ringworm />} />
       </Routes>
       <Footer />
     </Router>
