@@ -1,29 +1,39 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
-import '../styles/Auth.css'
+import '../styles/Auth.css';
 
 const Login = () => {
     const [formData, setFormData] = useState({ email: '', password: '' });
+    const [error, setError] = useState('');
     const navigate = useNavigate();
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        setError('');
+        
         try {
             const res = await axios.post('http://localhost:5000/api/auth/login', formData);
-            console.log(res.data);
-            localStorage.setItem('token', res.data.token); // Save token to localStorage
-            alert('Login successful!');
-            navigate('/user-profile'); // Redirect to user profile after successful login
+            
+            if (res.data.token && res.data.user) {
+                localStorage.setItem('token', res.data.token);
+                localStorage.setItem('user', JSON.stringify(res.data.user));
+                navigate('/UserProfile');
+            } else {
+                throw new Error('Invalid response from server');
+            }
         } catch (error) {
-            console.error(error.response.data);
-            alert('Login failed. Please check your credentials.');
+            console.error('Login error:', error.response?.data || error.message);
+            setError(error.response?.data?.message || 'Login failed. Please try again.');
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
         }
     };
 
     return (
         <div className="auth-container">
             <h2>Login</h2>
+            {error && <div className="auth-error">{error}</div>}
             <form onSubmit={handleSubmit}>
                 <input
                     type="email"

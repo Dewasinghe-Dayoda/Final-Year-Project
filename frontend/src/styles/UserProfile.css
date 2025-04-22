@@ -1,55 +1,37 @@
-.user-profile-container {
-  font-family: 'Arial', sans-serif;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 100vh;
-  background-color: #f4f4f4; /* Light gray background */
+.logout-button {
+  padding: 8px 16px; /* Reduced padding to make it more compact */
+  margin-top: 20px;
+  background-color: #dc3545;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 0.9rem; /* Slightly smaller font */
+  width: auto; /* Ensures button only takes needed space */
+  min-width: 80px; /* Minimum width to prevent too narrow */
+  transition: all 0.3s ease; /* Smooth hover transition */
 }
 
-.user-profile-frame {
-  background-color: rgb(218, 219, 221);
-  padding: 40px;
-  border-radius: 20px;
-  max-width: 500px;
-  width: 90%;
+.logout-button:hover {
+  background-color: #c82333;
+  transform: scale(1.02); /* Subtle hover effect */
+}
+
+/* Loading and error message styles */
+.user-profile-container > div {
   text-align: center;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-}
-
-.user-profile-frame h1 {
-  font-size: 2.5rem;
-  color: #084974;
-  margin-bottom: 30px;
-}
-
-.profile-content {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 20px;
-}
-
-.profile-image img {
-  width: 150px;
-  height: 150px;
-  border-radius: 50%;
-  object-fit: cover;
-  /*border: 4px solid white;  Adds a nice border effect */
-}
-
-.profile-details {
-  text-align: center;
-}
-
-.profile-details h2 {
-  font-size: 2rem;
-  color: #084974;
-  margin-bottom: 10px;
-}
-
-.profile-details p {
+  padding: 20px;
   font-size: 1.2rem;
-  line-height: 1.6;
-  margin-bottom: 10px;
+  color: #084974;
+}
+
+/* Optional: Add some animation to loading state */
+.user-profile-container > div[data-loading="true"] {
+  animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+  0% { opacity: 0.6; }
+  50% { opacity: 1; }
+  100% { opacity: 0.6; }
 }

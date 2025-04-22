@@ -1,19 +1,26 @@
 const express = require('express');
-const connectDB = require('./db'); // Import the connectDB function
+const connectDB = require('./db');
 const authRoutes = require('./routes/authRoutes');
 const cors = require('cors');
 const predictRoutes = require('./routes/predictRoutes');
 const historyRoutes = require('./routes/historyRoutes');
-const axios = require('axios');
 const symptomRoutes = require('./routes/symptomRoutes');
 const clinicRoutes = require('./routes/clinicRoutes');
 
 const app = express();
-app.use(cors());
+
+// Enhanced CORS configuration
+app.use(cors({
+    origin: 'http://localhost:3000', // Your frontend URL
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+    credentials: true
+}));
+
 app.use(express.json());
 
 // Connect to MongoDB
-connectDB(); // Call the connectDB function
+connectDB();
 
 // Routes
 app.use('/api/auth', authRoutes);

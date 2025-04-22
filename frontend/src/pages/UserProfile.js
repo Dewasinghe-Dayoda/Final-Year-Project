@@ -1,78 +1,85 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import '../styles/UserProfile.css';
+import profileImage from '../assets/profile.png';
 
 const UserProfile = () => {
     const [user, setUser] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState('');
     const navigate = useNavigate();
 
     useEffect(() => {
         const fetchUserProfile = async () => {
             const token = localStorage.getItem('token');
+            
             if (!token) {
-                navigate('/login'); // Redirect to login if no token is found
+                navigate('/login');
                 return;
             }
 
             try {
                 const res = await axios.get('http://localhost:5000/api/auth/user', {
-                    headers: { Authorization: `Bearer ${token}` },
+                    headers: { 
+                        Authorization: `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
                 });
+                
+                if (!res.data) {
+                    throw new Error('No user data received');
+                }
+
                 setUser(res.data);
+                localStorage.setItem('user', JSON.stringify(res.data));
             } catch (error) {
-                console.error(error.response.data);
-                localStorage.removeItem('token'); // Remove invalid token
-                navigate('/login'); // Redirect to login if token is invalid
+                console.error('Profile fetch error:', error);
+                setError(error.response?.data?.message || 'Failed to load profile. Please login again.');
+                localStorage.removeItem('token');
+                localStorage.removeItem('user');
+                navigate('/login');
+            } finally {
+                setLoading(false);
             }
         };
 
         fetchUserProfile();
     }, [navigate]);
 
-    if (!user) {
-        return <div>Loading...</div>;
+    const handleLogout = () => {
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        navigate('/login');
+    };
+
+    if (loading) {
+        return <div className="user-profile-container">Loading profile...</div>;
+    }
+
+    if (error) {
+        return <div className="user-profile-container">{error}</div>;
     }
 
     return (
-        <div className="user-profile">
-            <h2>Welcome, {user.name}!</h2>
-            <p>Email: {user.email}</p>
-            <button onClick={() => { localStorage.removeItem('token'); navigate('/login'); }}>
-                Logout
-            </button>
+        <div className="user-profile-container">
+            <div className="user-profile-frame">
+                <h1>User Profile</h1>
+                <div className="profile-content">
+                    <div className="profile-image">
+                        <img src={profileImage} alt="Profile" />
+                    </div>
+                    <div className="profile-details">
+                        <h2>{user?.name}</h2>
+                        <p>Email: {user?.email}</p>
+                        <button onClick={handleLogout} className="logout-button">
+                            Logout
+                        </button>
+                    </div>
+                </div>
+            </div>
         </div>
     );
 };
 
 export default UserProfile;
-// import React from "react";
-// import "../styles/UserProfile.css";
-// import profileImage from "../assets/profile.png"; // Example image path
-
-// const UserProfile = () => {
-//   const user = {
-//     name: "John Doe",
-//     email: "john.doe@example.com",
-//     joined: "2024-01-06",
-//   };
-
-//   return (
-//     <div className="user-profile-container">
-//       <div className="user-profile-frame">
-//         <h1>User Profile</h1>
-//         <div className="profile-content">
-//           <div className="profile-image">
-//             <img src={profileImage} alt="Profile" />
-//           </div>
-//           <div className="profile-details">
-//             <h2>{user.name}</h2>
-//             <p>Email: {user.email}</p>
-//             <p>Member since: {user.joined}</p>
-//           </div>
-//         </div>
-//       </div>
-//     </div>
-//   );
-// };
-
-// export default UserProfile;

@@ -1,12 +1,12 @@
 import React from "react";
-import { useNavigate } from "react-router-dom"; // ADDED THIS IMPORT
+import { useNavigate } from "react-router-dom";
 import "../styles/Home.css";
 import featureImage1 from "../assets/feature_1.jpg";
 import featureImage2 from "../assets/feature_2.jpg";
 import featureImage3 from "../assets/feature_3.jpg";
 
 const Home = () => {
-  const navigate = useNavigate(); // ADDED THIS LINE
+  const navigate = useNavigate(); 
 
   return (
     <div className="home-container">
@@ -20,7 +20,7 @@ const Home = () => {
         </p>
         <button 
           className="cta-button" 
-          onClick={() => navigate('/QuickCheck')} // ADDED THIS ONCLICK HANDLER
+          onClick={() => navigate('/QuickCheck')} 
         >
           Start Your Skin Check
         </button>
