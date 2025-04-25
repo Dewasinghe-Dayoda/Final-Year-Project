@@ -20,11 +20,16 @@ const ClinicDetailsPage = () => {
       try {
         setLoading(true);
         setError(null);
-        const { data } = await getClinicDetails(id);
-        setClinic(data);
+        const response = await getClinicDetails(id);
+        
+        if (response.data && response.data.success) {
+          setClinic(response.data.data);
+        } else {
+          throw new Error(response.data?.error || 'Failed to load clinic details');
+        }
       } catch (error) {
         console.error("Error fetching clinic details:", error);
-        setError("Failed to load clinic details. Please try again.");
+        setError(error.message || "Failed to load clinic details. Please try again.");
       } finally {
         setLoading(false);
       }
@@ -54,7 +59,7 @@ const ClinicDetailsPage = () => {
     }
   };
 
-  const availableTimes = selectedDoctor && selectedDate 
+  const availableTimes = selectedDoctor && selectedDate && clinic?.doctors
     ? clinic.doctors
         .find(d => d.name === selectedDoctor)
         ?.availability
@@ -78,13 +83,15 @@ const ClinicDetailsPage = () => {
         </div>
       </div>
 
-      <div className="clinic-images">
-        {clinic.images.map((img, index) => (
-          <div key={index} className="clinic-image">
-            <img src={`/images/clinics/${img}`} alt={`${clinic.name} ${index + 1}`} />
-          </div>
-        ))}
-      </div>
+      {clinic.images && clinic.images.length > 0 && (
+        <div className="clinic-images">
+          {clinic.images.map((img, index) => (
+            <div key={index} className="clinic-image">
+              <img src={`/images/clinics/${img}`} alt={`${clinic.name} ${index + 1}`} />
+            </div>
+          ))}
+        </div>
+      )}
 
       <div className="clinic-info-section">
         <h2>About the Clinic</h2>
@@ -98,73 +105,81 @@ const ClinicDetailsPage = () => {
           
           <div className="detail-item">
             <h3>Services Offered</h3>
-            <ul>
-              {clinic.services.map((service, index) => (
-                <li key={index}>{service}</li>
-              ))}
-            </ul>
+            {clinic.services && clinic.services.length > 0 ? (
+              <ul>
+                {clinic.services.map((service, index) => (
+                  <li key={index}>{service}</li>
+                ))}
+              </ul>
+            ) : (
+              <p>No services listed</p>
+            )}
           </div>
         </div>
       </div>
 
       <div className="doctors-section">
         <h2>Our Dermatologists</h2>
-        <div className="doctors-grid">
-          {clinic.doctors.map((doctor) => (
-            <div key={doctor.name} className="doctor-card">
-              <div className="doctor-info">
-                <h3>{doctor.name}</h3>
-                <p><strong>Specialization:</strong> {doctor.specialization}</p>
-                <p><strong>Qualifications:</strong> {doctor.qualifications}</p>
-                <p><strong>Experience:</strong> {doctor.experience}</p>
-              </div>
-              
-              <div className="booking-form">
-                <h3>Book Appointment</h3>
-                <div className="form-group">
-                  <label>Date:</label>
-                  <DatePicker
-                    selected={selectedDate}
-                    onChange={date => setSelectedDate(date)}
-                    minDate={new Date()}
-                    filterDate={date => {
-                      const day = date.toLocaleDateString('en-US', { weekday: 'long'});
-                      return doctor.availability.some(a => a.day === day);
-                    }}
-                    placeholderText="Select available date"
-                  />
+        {clinic.doctors && clinic.doctors.length > 0 ? (
+          <div className="doctors-grid">
+            {clinic.doctors.map((doctor) => (
+              <div key={doctor.name} className="doctor-card">
+                <div className="doctor-info">
+                  <h3>{doctor.name}</h3>
+                  <p><strong>Specialization:</strong> {doctor.specialization}</p>
+                  <p><strong>Qualifications:</strong> {doctor.qualifications}</p>
+                  <p><strong>Experience:</strong> {doctor.experience}</p>
                 </div>
-
-                {selectedDate && (
+                
+                <div className="booking-form">
+                  <h3>Book Appointment</h3>
                   <div className="form-group">
-                    <label>Time Slot:</label>
-                    <select
-                      value={selectedTime}
-                      onChange={(e) => setSelectedTime(e.target.value)}
-                    >
-                      <option value="">Select time</option>
-                      {availableTimes.map(time => (
-                        <option key={time} value={time}>{time}</option>
-                      ))}
-                    </select>
+                    <label>Date:</label>
+                    <DatePicker
+                      selected={selectedDate}
+                      onChange={date => setSelectedDate(date)}
+                      minDate={new Date()}
+                      filterDate={date => {
+                        const day = date.toLocaleDateString('en-US', { weekday: 'long'});
+                        return doctor.availability?.some(a => a.day === day);
+                      }}
+                      placeholderText="Select available date"
+                    />
                   </div>
-                )}
 
-                <button 
-                  onClick={() => {
-                    setSelectedDoctor(doctor.name);
-                    if (selectedDate && selectedTime) {
-                      handleBooking();
-                    }
-                  }}
-                  disabled={!selectedDate || !selectedTime || loading}
-                >
-                  {loading ? 'Processing...' : 'Confirm Booking'}
-                </button>
+                  {selectedDate && (
+                    <div className="form-group">
+                      <label>Time Slot:</label>
+                      <select
+                        value={selectedTime}
+                        onChange={(e) => setSelectedTime(e.target.value)}
+                      >
+                        <option value="">Select time</option>
+                        {availableTimes.map(time => (
+                          <option key={time} value={time}>{time}</option>
+                        ))}
+                      </select>
+                    </div>
+                  )}
+
+                  <button 
+                    onClick={() => {
+                      setSelectedDoctor(doctor.name);
+                      if (selectedDate && selectedTime) {
+                        handleBooking();
+                      }
+                    }}
+                    disabled={!selectedDate || !selectedTime || loading}
+                  >
+                    {loading ? 'Processing...' : 'Confirm Booking'}
+                  </button>
+                </div>
               </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        ) : (
+          <p>No doctors listed for this clinic</p>
+        )}
       </div>
     </div>
   );

@@ -1,4 +1,5 @@
 const Clinic = require('../models/Clinic');
+const mongoose = require('mongoose');
 
 // Enhanced Colombo clinics data
 const seedClinics = async () => {
@@ -303,30 +304,41 @@ exports.getClinics = async (req, res) => {
   }
 };
 
-// Get single clinic details
+// Get single clinic details-updated
 exports.getClinicDetails = async (req, res) => {
   try {
     const { id } = req.params;
     
-    if (!mongoose.Types.ObjectId.isValid(id)) {
-      return res.status(400).json({ error: "Invalid clinic ID" });
+    // More robust ID validation
+    if (!id || !mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({ 
+        success: false,
+        error: "Invalid clinic ID format" 
+      });
     }
 
-    const clinic = await Clinic.findById(id);
+    const clinic = await Clinic.findById(id).lean();
     
     if (!clinic) {
-      return res.status(404).json({ error: "Clinic not found" });
+      return res.status(404).json({ 
+        success: false,
+        error: "Clinic not found" 
+      });
     }
 
-    res.json(clinic);
+    res.status(200).json({
+      success: true,
+      data: clinic
+    });
   } catch (error) {
     console.error("Error fetching clinic details:", error);
     res.status(500).json({ 
-      error: "Server error while fetching clinic details." 
+      success: false,
+      error: "Internal server error while fetching clinic details",
+      details: process.env.NODE_ENV === 'development' ? error.message : undefined
     });
   }
 };
-
 // Book appointment
 exports.bookAppointment = async (req, res) => {
   try {

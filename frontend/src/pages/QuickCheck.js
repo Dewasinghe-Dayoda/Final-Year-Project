@@ -29,7 +29,7 @@ const QuickCheck = () => {
     const loadModel = async () => {
       try {
         console.log('Loading TensorFlow model...');
-        const modelUrl = process.env.PUBLIC_URL + '/trained_model/tfjs_model/model.json';
+        const modelUrl = process.env.PUBLIC_URL + '/tfjs_final_correct/model.json';
         const loadedModel = await tf.loadLayersModel(modelUrl);
         
         // Verify model architecture
@@ -77,7 +77,7 @@ const QuickCheck = () => {
   const preprocessImage = (imgElement) => {
     return tf.tidy(() => {
       return tf.browser.fromPixels(imgElement)
-        .resizeNearestNeighbor([224, 224])
+        .resizeNearestNeighbor([128, 128])
         .toFloat()
         .div(tf.scalar(255.0))
         .expandDims();

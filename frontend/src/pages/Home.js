@@ -1,9 +1,9 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import "../styles/Home.css";
-import featureImage1 from "../assets/feature_1.jpg";
-import featureImage2 from "../assets/feature_2.jpg";
-import featureImage3 from "../assets/feature_3.jpg";
+import featureImage1 from "../assets/Camera.png";
+import featureImage2 from "../assets/Check Document.png";
+import featureImage3 from "../assets/Financial Growth Analysis.png";
 
 const Home = () => {
   const navigate = useNavigate(); 

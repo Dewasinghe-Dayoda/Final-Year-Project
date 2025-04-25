@@ -29,6 +29,15 @@ app.use('/api/history', historyRoutes);
 app.use('/api/symptoms', symptomRoutes);
 app.use('/api/clinics', clinicRoutes);
 
+// Error handling middleware
+app.use((err, req, res, next) => {
+    console.error(err.stack);
+    res.status(500).json({
+      success: false,
+      error: 'Internal Server Error',
+      message: process.env.NODE_ENV === 'development' ? err.message : undefined
+    });
+  });
 const PORT = process.env.PORT || 5000;
 app.get('/', (req, res) => {
     res.send('Welcome to the Skin Disease Awareness API!');
