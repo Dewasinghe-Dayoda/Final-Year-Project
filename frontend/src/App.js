@@ -25,6 +25,7 @@ import Cellulitis from './pages/DiseaseDetails/Cellulitis';
 import Impetigo from './pages/DiseaseDetails/Impetigo';
 import AthletesFoot from './pages/DiseaseDetails/AthletesFoot';
 import Ringworm from './pages/DiseaseDetails/Ringworm';
+import PredictPage from "./components/PredictPage";
 
 function App() {
   // TensorFlow.js memory management
@@ -98,9 +99,9 @@ function App() {
         <Route path="/disease/cellulitis" element={<Cellulitis />} />
         <Route path="/disease/impetigo" element={<Impetigo />} />
         <Route path="/disease/athletes-foot" element={<AthletesFoot />} />
-        <Route path="/disease/ringworm" element={<Ringworm />} />
+        <Route path="/disease/ringworm" element={<Ringworm />} />   
+        <Route path="/skin-check" element={<PredictPage />} />   
       </Routes>
-     
       <Footer />
      </div></Router>
   );

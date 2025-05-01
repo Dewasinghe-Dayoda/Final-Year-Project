@@ -1,109 +1,55 @@
 const express = require('express');
 const router = express.Router();
-const { 
-  upload, 
-  cleanupFile,
-  cleanupFileAsync,
-  calculateSymptomMatch,
-  combineResults
-} = require('../controllers/predictionController');
-const authMiddleware = require('../middleware/authMiddleware');
-const Prediction = require('../models/Predictions');
-const History = require('../models/History');
+const multer = require('multer');
+const axios = require('axios'); // For forwarding requests to Python backend
+const path = require('path');
+const fs = require('fs');
+const util = require('util');
 
-router.post('/save-result', authMiddleware, async (req, res) => {
-  try {
-    const { results, imageInfo, symptoms } = req.body;
-    
-    if (!results || !Array.isArray(results)) {
-      return res.status(400).json({ error: 'Invalid prediction data format' });
-    }
-    if (!imageInfo?.name || !imageInfo?.size) {
-      return res.status(400).json({ error: 'Missing image information' });
-    }
+const unlinkFile = util.promisify(fs.unlink);
 
-    // Calculate symptom matches
-    const symptomResults = calculateSymptomMatch(symptoms);
-    const combinedResults = combineResults(results, symptomResults);
-    
-    const primaryResult = combinedResults[0];
-    const needsConsultation = primaryResult.combinedConfidence > 50;
-    const urgency = primaryResult.combinedConfidence > 70 ? 'high' : 
-                   primaryResult.combinedConfidence > 50 ? 'medium' : 'low';
-
-    // Save to Prediction collection
-    const prediction = await Prediction.create({
-      userId: req.user.id,
-      imageName: imageInfo.name,
-      imageSize: imageInfo.size,
-      predictionResults: results,
-      symptomResults,
-      combinedResults,
-      symptoms,
-      diagnosis: {
-        condition: primaryResult.disease,
-        confidence: primaryResult.combinedConfidence
-      },
-      recommendation: {
-        needsConsultation,
-        urgency,
-        timestamp: new Date()
-      }
-    });
-
-    // Also save to History collection
-    const historyEntry = await History.create({
-      userId: req.user.id,
-      predictionId: prediction._id,
-      imageName: imageInfo.name,
-      imageSize: imageInfo.size,
-      diagnosis: prediction.diagnosis,
-      recommendation: prediction.recommendation,
-      timestamp: new Date()
-    });
-
-    res.json({ 
-      success: true, 
-      prediction,
-      historyEntry,
-      recommendation: prediction.recommendation
-    });
-  } catch (error) {
-    console.error('Error saving prediction:', error);
-    res.status(500).json({ 
-      error: 'Failed to save prediction results',
-      details: process.env.NODE_ENV === 'development' ? error.message : undefined
-    });
-  }
+const upload = multer({ 
+  dest: 'uploads/',
+  limits: { fileSize: 5 * 1024 * 1024 }
 });
 
-router.post('/upload-image', authMiddleware, upload.single('image'), async (req, res) => {
+// Forward prediction request to Python backend
+router.post('/predict', upload.single('image'), async (req, res) => {
   try {
     if (!req.file) {
-      return res.status(400).json({ error: 'No image file received' });
+      return res.status(400).json({ 
+        success: false,
+        error: 'No image file uploaded' 
+      });
     }
 
-    res.json({ 
-      success: true,
-      imageInfo: {
-        name: req.file.originalname,
-        size: req.file.size,
-        path: req.file.path,
-        mimetype: req.file.mimetype
-      }
-    });
-  } catch (error) {
-    console.error('Image upload error:', error);
+    // Forward the image to Python backend
+    const pythonApiResponse = await axios.post(
+      'http://localhost:8000/predict', // Your Python API endpoint
+      { image: req.file.path }, // Or send as FormData
+      { headers: { 'Content-Type': 'multipart/form-data' } }
+    );
+
+    // Clean up the uploaded file
+    await unlinkFile(req.file.path);
+
+    // Return the Python API's response
+    res.json(pythonApiResponse.data);
+
+  } catch (err) {
+    console.error('Prediction error:', err);
     
+    // Clean up on error
     if (req.file?.path) {
-      await cleanupFileAsync(req.file.path).catch(cleanupError => {
-        console.error('Failed to cleanup file:', cleanupError);
+      await unlinkFile(req.file.path).catch(cleanupErr => {
+        console.error('File cleanup error:', cleanupErr);
       });
     }
 
     res.status(500).json({ 
-      error: 'Image upload failed',
-      details: process.env.NODE_ENV === 'development' ? error.message : undefined
+      success: false,
+      error: 'Prediction failed',
+      details: process.env.NODE_ENV === 'development' ? err.message : undefined
     });
   }
 });

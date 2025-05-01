@@ -1,46 +1,36 @@
 const express = require('express');
 const connectDB = require('./db');
-const authRoutes = require('./routes/authRoutes');
 const cors = require('cors');
 const predictRoutes = require('./routes/predictRoutes');
-const historyRoutes = require('./routes/historyRoutes');
-const symptomRoutes = require('./routes/symptomRoutes');
-const clinicRoutes = require('./routes/clinicRoutes');
+const authRoutes = require('./routes/authRoutes');
+const clinicRoutes = require('./routes/clinicRoutes'); // Add this line
 
 const app = express();
 
 // Enhanced CORS configuration
 app.use(cors({
-    origin: 'http://localhost:3000', // Your frontend URL
-    methods: ['GET', 'POST', 'PUT', 'DELETE'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
-    credentials: true
+  origin: 'http://localhost:3000',
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
-app.use(express.json());
+// Preflight handling
+app.options('*', cors());
+
+app.use(express.json({ limit: '5mb' }));
+app.use(express.urlencoded({ extended: true }));
 
 // Connect to MongoDB
 connectDB();
 
 // Routes
 app.use('/api/auth', authRoutes);
-app.use('/api/predict', predictRoutes);
-app.use('/api/history', historyRoutes);
-app.use('/api/symptoms', symptomRoutes);
-app.use('/api/clinics', clinicRoutes);
+app.use('/api/quickcheck', predictRoutes);
+app.use('/api/clinics', clinicRoutes); // Add this line to mount clinic routes
 
-// Error handling middleware
-app.use((err, req, res, next) => {
-    console.error(err.stack);
-    res.status(500).json({
-      success: false,
-      error: 'Internal Server Error',
-      message: process.env.NODE_ENV === 'development' ? err.message : undefined
-    });
-  });
+// Health check
+app.get('/api/health', (req, res) => res.json({ status: 'OK' }));
+
 const PORT = process.env.PORT || 5000;
-app.get('/', (req, res) => {
-    res.send('Welcome to the Skin Disease Awareness API!');
-});
-
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

@@ -1,56 +1,61 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import * as tf from '@tensorflow/tfjs';
+import axios from 'axios';
 import "../styles/QuickCheck.css";
 import uploadIcon from "../assets/upload-icon.png";
-import { savePredictionResult } from '../api';
-import '@tensorflow/tfjs-backend-webgl';
 
-// Symptom patterns for each disease (1 = yes, 0 = no, -1 = doesn't matter)
 const DISEASE_SYMPTOMS = {
   'Cellulitis': {
-    itching: 1,
-    redness: 1,
-    swelling: 1,
-    pain: 1,
-    scaling: 0,
-    pus: 0
+    itching: 1,       
+    redness: 1,       
+    swelling: 1,      
+    pain: 1,          
+    scaling: 0,       
+    pus: 0,           
+    warmth: 1,        
+    fever: -1         
   },
   'Impetigo': {
-    itching: 1,
-    redness: 1,
-    swelling: 0,
-    pain: 0,
-    scaling: 1,
-    pus: 1
+    itching: 1,       
+    redness: 1,       
+    swelling: 0,      
+    pain: 0,          
+    scaling: 1,       
+    pus: 1,           
+    blisters: 1,      
+    face_common: 1    
   },
   'Ringworm': {
-    itching: 1,
-    redness: 1,
-    swelling: 0,
+    itching: 1,       
+    redness: 1,       
+    swelling: 0,      
     pain: 0,
-    scaling: 1,
-    pus: 0
+    scaling: 1,       
+    pus: 0,
+    circular: 1,      
+    location: -1,     
+    hair_loss: 1      
   },
   'Athlete Foot': {
-    itching: 1,
-    redness: 1,
+    itching: 1,       
+    redness: 1,       
     swelling: 0,
     pain: 0,
-    scaling: 1,
-    pus: 0
+    scaling: 1,       
+    pus: 0,
+    cracking: 1,      
+    odor: 1,          
+    location: 1       
   }
 };
 
 const QuickCheck = () => {
   const navigate = useNavigate();
-  const [model, setModel] = useState(null);
   const [image, setImage] = useState(null);
   const [imageFile, setImageFile] = useState(null);
   const [results, setResults] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [modelLoading, setModelLoading] = useState(false);
-  const [modelError, setModelError] = useState(null);
+  const [error, setError] = useState(null);
   const [symptoms, setSymptoms] = useState({
     itching: "",
     redness: "",
@@ -58,33 +63,10 @@ const QuickCheck = () => {
     pain: "",
     scaling: "",
     pus: "",
+    circular: "",
+    cracking: "",
+    location: ""
   });
-  const [symptomMatch, setSymptomMatch] = useState(null);
-
-  const loadModel = async () => {
-    try {
-      setModelLoading(true);
-      setModelError(null);
-      const modelUrl = process.env.PUBLIC_URL + '/skinproscan_224_tfjs_model/model.json';
-      const loadedModel = await tf.loadGraphModel(modelUrl);
-      
-      if (!loadedModel || !loadedModel.inputs || !loadedModel.outputs) {
-        throw new Error('Model loaded but appears invalid');
-      }
-      
-      const inputShape = loadedModel.inputs[0].shape;
-      if (!inputShape || inputShape[1] !== 224 || inputShape[2] !== 224) {
-        throw new Error('Model expects incorrect input dimensions');
-      }
-      
-      setModel(loadedModel);
-    } catch (error) {
-      console.error('Model loading error:', error);
-      setModelError(error.toString());
-    } finally {
-      setModelLoading(false);
-    }
-  };
 
   const handleImageUpload = (e) => {
     const file = e.target.files[0];
@@ -92,16 +74,14 @@ const QuickCheck = () => {
       setImage(URL.createObjectURL(file));
       setImageFile(file);
       setResults(null);
+      setError(null);
     } else if (file) {
       alert('Please select an image smaller than 5MB');
     }
   };
 
   const handleSymptomChange = (symptom, value) => {
-    setSymptoms(prev => ({
-      ...prev,
-      [symptom]: value,
-    }));
+    setSymptoms(prev => ({ ...prev, [symptom]: value }));
   };
 
   const calculateSymptomMatch = () => {
@@ -111,183 +91,97 @@ const QuickCheck = () => {
       swelling: symptoms.swelling === 'yes' ? 1 : 0,
       pain: symptoms.pain === 'yes' ? 1 : 0,
       scaling: symptoms.scaling === 'yes' ? 1 : 0,
-      pus: symptoms.pus === 'yes' ? 1 : 0
+      pus: symptoms.pus === 'yes' ? 1 : 0,
+      circular: symptoms.circular === 'yes' ? 1 : 0,
+      cracking: symptoms.cracking === 'yes' ? 1 : 0,
+      location: symptoms.location
     };
 
-    const matches = {};
-    let totalPossible = 0;
-
-    // Calculate match percentage for each disease
-    Object.keys(DISEASE_SYMPTOMS).forEach(disease => {
+    const matches = Object.keys(DISEASE_SYMPTOMS).map(disease => {
       const pattern = DISEASE_SYMPTOMS[disease];
       let matchCount = 0;
       let totalRelevant = 0;
 
       Object.keys(pattern).forEach(symptom => {
-        if (pattern[symptom] !== -1) { // Only consider symptoms that matter for this disease
+        if (pattern[symptom] !== -1) {
           totalRelevant++;
-          if (userAnswers[symptom] === pattern[symptom]) {
-            matchCount++;
-          }
+          if (userAnswers[symptom] === pattern[symptom]) matchCount++;
         }
       });
 
-      const percentage = totalRelevant > 0 ? Math.round((matchCount / totalRelevant) * 100) : 0;
-      matches[disease] = percentage;
-      totalPossible += percentage;
-    });
-
-    // Normalize percentages so they sum to 100
-    const normalizedMatches = {};
-    Object.keys(matches).forEach(disease => {
-      normalizedMatches[disease] = totalPossible > 0 
-        ? Math.round((matches[disease] / totalPossible) * 100) 
-        : 0;
-    });
-
-    // Sort by highest match
-    const sortedMatches = Object.entries(normalizedMatches)
-      .sort((a, b) => b[1] - a[1])
-      .map(([disease, percentage]) => ({ disease, percentage }));
-
-    setSymptomMatch(sortedMatches);
-    return sortedMatches;
-  };
-
-  const preprocessImage = (imgElement) => {
-    return tf.tidy(() => {
-      const tensor = tf.browser.fromPixels(imgElement)
-        .resizeNearestNeighbor([224, 224])
-        .toFloat()
-        .div(tf.scalar(255.0));
-      return tensor.expandDims(0);
-    });
-  };
-  
-  const predictImage = async (imgElement) => {
-    if (!model) throw new Error('Model not loaded');
-    
-    const tensor = preprocessImage(imgElement);
-    try {
-      const prediction = model.execute(tensor);
-      const results = await prediction.data();
-      
-      tf.dispose(prediction);
-      
-      const diseases = ['Cellulitis', 'Impetigo', 'Ringworm', 'Athlete Foot'];
-      return diseases.map((disease, index) => ({
+      return {
         disease,
-        confidence: (results[index] * 100).toFixed(2),
-        rawConfidence: results[index]
-      })).sort((a, b) => b.rawConfidence - a.rawConfidence);
-    } finally {
-      tf.dispose(tensor);
+        percentage: totalRelevant > 0 ? Math.round((matchCount / totalRelevant) * 100) : 0
+      };
+    });
+
+    return matches.sort((a, b) => b.percentage - a.percentage);
+  };
+
+  const predictImage = async () => {
+    if (!imageFile) throw new Error('Please upload an image first');
+
+    const formData = new FormData();
+    formData.append('file', imageFile);
+
+    try {
+      const response = await axios.post(
+        'http://127.0.0.1:5000/predict',
+        formData,
+        {
+          headers: {
+            'Content-Type': 'multipart/form-data'
+          }
+        }
+      );
+
+      return {
+        disease: response.data.disease,
+        confidence: Math.round(response.data.confidence * 100),
+        allPredictions: [
+          { 
+            disease: response.data.disease, 
+            confidence: Math.round(response.data.confidence * 100) 
+          }
+        ]
+      };
+    } catch (err) {
+      console.error('API Error:', err.response?.data || err.message);
+      throw new Error(err.response?.data?.error || 'Failed to get prediction');
     }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!imageFile) {
-      alert('Please upload an image first');
-      return;
-    }
-  
-    // Check if at least one symptom is answered
-    const answeredSymptoms = Object.values(symptoms).filter(val => val !== "").length;
-    if (answeredSymptoms === 0) {
+    
+    if (Object.values(symptoms).filter(val => val !== "").length === 0) {
       alert('Please answer at least one symptom question');
       return;
     }
-  
+
     setLoading(true);
-    setModelError(null);
+    setError(null);
     
     try {
-      // Calculate symptom matches first
       const symptomResults = calculateSymptomMatch();
-      console.log('Symptom Results:', symptomResults); // Debug log
-  
-      // Load model if not already loaded
-      if (!model) {
-        await loadModel();
-        if (modelError) {
-          console.error('Model failed to load:', modelError);
-          return;
-        }
-      }
-  
-      // Process image prediction
-      const imgElement = new Image();
-      imgElement.src = URL.createObjectURL(imageFile);
+      const modelPrediction = await predictImage();
       
-      await new Promise((resolve, reject) => {
-        imgElement.onload = resolve;
-        imgElement.onerror = () => reject(new Error('Failed to load image'));
+      setResults({
+        modelPrediction,
+        symptomResults,
+        finalDisease: modelPrediction.disease,
+        modelConfidence: modelPrediction.confidence,
+        symptomMatchForModel: symptomResults.find(
+          item => item.disease === modelPrediction.disease
+        )?.percentage || 0,
+        shouldUseModelPrediction: true,
+        recommendations: getRecommendations(modelPrediction.disease)
       });
-  
-      const predictionResults = await predictImage(imgElement);
-      console.log('Image Prediction Results:', predictionResults); // Debug log
-  
-      // Combine results
-      const combinedResults = combineResults(predictionResults, symptomResults);
-      console.log('Combined Results:', combinedResults); // Debug log
-  
-      const formattedResults = formatResults(combinedResults);
-      console.log('Formatted Results:', formattedResults); // Debug log
-  
-      setResults(formattedResults);
-      
-      // Save to backend
-      await savePredictionResult({
-        imageName: imageFile.name,
-        results: predictionResults,
-        symptoms,
-        symptomMatch: symptomResults,
-        finalDiagnosis: formattedResults
-      });
-  
     } catch (error) {
-      console.error("Prediction error:", error);
-      setModelError(error.toString());
+      setError(error.message);
     } finally {
       setLoading(false);
     }
-  };
-
-  const combineResults = (imageResults, symptomResults) => {
-    // Create a map of disease to image confidence
-    const imageConfidence = {};
-    imageResults.forEach(result => {
-      imageConfidence[result.disease] = parseFloat(result.confidence);
-    });
-  
-    // Combine with symptom results (weighted average)
-    return symptomResults.map(symptomResult => {
-      const imageConf = imageConfidence[symptomResult.disease] || 0;
-      // Weighted average: 60% image, 40% symptoms
-      const combinedConf = (imageConf * 0.6) + (symptomResult.percentage * 0.4);
-      return {
-        disease: symptomResult.disease,
-        imageConfidence: imageConf,
-        symptomConfidence: symptomResult.percentage,
-        combinedConfidence: combinedConf
-      };
-    }).sort((a, b) => b.combinedConfidence - a.combinedConfidence);
-
-  };
-
-  const formatResults = (combinedResults) => {
-    const topResult = combinedResults[0];
-    return {
-      condition: topResult.disease,
-      confidence: parseFloat(topResult.combinedConfidence.toFixed(2)),
-      imageConfidence: topResult.imageConfidence,
-      symptomConfidence: topResult.symptomConfidence,
-      description: `The AI analysis suggests a ${topResult.combinedConfidence.toFixed(2)}% likelihood of ${topResult.disease}.`,
-      symptomDescription: `Based on your symptoms, there's a ${topResult.symptomConfidence}% match with ${topResult.disease}.`,
-      recommendations: getRecommendations(topResult.disease),
-      allResults: combinedResults
-    };
   };
 
   const getRecommendations = (condition) => {
@@ -306,7 +200,7 @@ const QuickCheck = () => {
 
   return (
     <div className="quick-check-container">
-      <h1>Skin Condition Check</h1>
+      <h1>Skin Condition Quick Check</h1>
       
       {!results ? (
         <div className="upload-section">
@@ -330,19 +224,80 @@ const QuickCheck = () => {
                 <h3>Report Symptoms</h3>
                 {Object.entries(symptoms).map(([symptom, value]) => (
                   <div key={symptom} className="symptom-question">
-                    <p>Do you have {symptom}?</p>
-                    <div className="yes-no-buttons">
-                      {['yes', 'no'].map(option => (
-                        <button
-                          key={option}
-                          className={`option-button ${value === option ? 'selected' : ''}`}
-                          onClick={() => handleSymptomChange(symptom, option)}
-                          type="button"
+                    {/* Basic Symptoms */}
+                    {!['circular', 'cracking', 'location'].includes(symptom) && (
+                      <>
+                        <p>Do you have {symptom}?</p>
+                        <div className="yes-no-buttons">
+                          {['yes', 'no'].map(option => (
+                            <button
+                              key={option}
+                              className={`option-button ${value === option ? 'selected' : ''}`}
+                              onClick={() => handleSymptomChange(symptom, option)}
+                              type="button"
+                            >
+                              {option.charAt(0).toUpperCase() + option.slice(1)}
+                            </button>
+                          ))}
+                        </div>
+                      </>
+                    )}
+
+                    {/* Special Case: Circular Rash */}
+                    {symptom === 'circular' && (
+                      <>
+                        <p>Does the rash have a distinct circular/ring shape?</p>
+                        <div className="yes-no-buttons">
+                          {['yes', 'no'].map(option => (
+                            <button
+                              key={option}
+                              className={`option-button ${value === option ? 'selected' : ''}`}
+                              onClick={() => handleSymptomChange(symptom, option)}
+                              type="button"
+                            >
+                              {option.charAt(0).toUpperCase() + option.slice(1)}
+                            </button>
+                          ))}
+                        </div>
+                      </>
+                    )}
+
+                    {/* Special Case: Skin Cracking */}
+                    {symptom === 'cracking' && (
+                      <>
+                        <p>Is there skin cracking or peeling between toes?</p>
+                        <div className="yes-no-buttons">
+                          {['yes', 'no'].map(option => (
+                            <button
+                              key={option}
+                              className={`option-button ${value === option ? 'selected' : ''}`}
+                              onClick={() => handleSymptomChange(symptom, option)}
+                              type="button"
+                            >
+                              {option.charAt(0).toUpperCase() + option.slice(1)}
+                            </button>
+                          ))}
+                        </div>
+                      </>
+                    )}
+
+                    {/* Special Case: Location Selector */}
+                    {symptom === 'location' && (
+                      <div className="location-selector">
+                        <p>Where is the affected area located?</p>
+                        <select
+                          value={value}
+                          onChange={(e) => handleSymptomChange('location', e.target.value)}
+                          className="location-dropdown"
                         >
-                          {option.charAt(0).toUpperCase() + option.slice(1)}
-                        </button>
-                      ))}
-                    </div>
+                          <option value="">Select location</option>
+                          <option value="feet">Feet (between toes)</option>
+                          <option value="scalp">Scalp</option>
+                          <option value="body">Body</option>
+                          <option value="face">Face</option>
+                        </select>
+                      </div>
+                    )}
                   </div>
                 ))}
                 
@@ -354,22 +309,9 @@ const QuickCheck = () => {
                   {loading ? 'Analyzing...' : 'Check Skin Condition'}
                 </button>
 
-                {modelLoading && (
-                  <div className="model-status">
-                    <div className="spinner small"></div>
-                    <p>Loading AI model...</p>
-                  </div>
-                )}
-                {modelError && !modelLoading && (
-                  <div className="model-error">
-                    <p className="error-text">Model failed to load:</p>
-                    <p className="error-detail">{modelError}</p>
-                    <button 
-                      className="retry-button small"
-                      onClick={loadModel}
-                    >
-                      Retry
-                    </button>
+                {error && (
+                  <div className="error-message">
+                    <p>{error}</p>
                   </div>
                 )}
               </div>
@@ -377,85 +319,88 @@ const QuickCheck = () => {
           )}
         </div>
       ) : (
-          <div className="results-section">
-            <h2>Analysis Results</h2>
-            <div className="result-card">
-              <h3>{results.condition}</h3>
-              <div className="confidence-meter">
-                <div 
-                  className="confidence-fill" 
-                  style={{ width: `${results.confidence}%` }}
-                ></div>
-                <span>{results.confidence}%</span>
-              </div>
-              
-              <div className="result-description">
-                <p>{results.description}</p>
-                <div className="symptom-match">
-                  <h4>Symptom Match:</h4>
-                  <p>{results.symptomDescription}</p>
+        <div className="results-section">
+          <h2>Analysis Results</h2>
+          
+          <div className="results-comparison">
+            <div className="model-results">
+              <h3>AI Model Analysis</h3>
+              <div className="result-card">
+                <h4>{results.modelPrediction.disease}</h4>
+                <div className="confidence-meter">
+                  <div 
+                    className="confidence-fill" 
+                    style={{ width: `${results.modelConfidence}%` }}
+                  ></div>
+                  <span>{results.modelConfidence}% confidence</span>
                 </div>
               </div>
-              
-              <div className="results-breakdown">
-                <h4>Detailed Breakdown:</h4>
-                <table>
-                  <thead>
-                    <tr>
-                      <th>Condition</th>
-                      <th>Image Analysis</th>
-                      <th>Symptom Match</th>
-                      <th>Combined</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {results.allResults.map((result, index) => (
-                      <tr key={index} className={index === 0 ? 'top-result' : ''}>
-                        <td>{result.disease}</td>
-                        <td>{result.imageConfidence.toFixed(2)}%</td>
-                        <td>{result.symptomConfidence}%</td>
-                        <td>{result.combinedConfidence.toFixed(2)}%</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-
-            <div className="recommendations">
-              <h4>Recommendations:</h4>
-              <ul>
-                {results.recommendations.map((rec, i) => (
-                  <li key={i}>{rec}</li>
-                ))}
-              </ul>
             </div>
             
-            <div className="action-buttons">
-              <button 
-                className="appointment-button"
-                onClick={() => navigate('/book-appointment')}
-              >
-                Book Appointment
-              </button>
-              <button 
-                className="new-check-button"
-                onClick={() => {
-                  setImage(null);
-                  setImageFile(null);
-                  setResults(null);
-                  setSymptoms({
-                    itching: "",
-                    redness: "",
-                    swelling: "",
-                    pain: "",
-                    scaling: "",
-                    pus: "",
-                  });
-                }}
-              >
-                New Check
-              </button>
+            <div className="symptom-results">
+              <h3>Symptom Checker</h3>
+              <div className="result-card">
+                <h4>{results.symptomResults[0].disease}</h4>
+                <div className="confidence-meter">
+                  <div 
+                    className="confidence-fill" 
+                    style={{ width: `${results.symptomResults[0].percentage}%` }}
+                  ></div>
+                  <span>{results.symptomResults[0].percentage}% match</span>
+                </div>
+              </div>
             </div>
+          </div>
+          
+          <div className="final-result">
+            <h3>Final Assessment</h3>
+            <div className={`result-card ${results.shouldUseModelPrediction ? 'model-based' : 'symptom-based'}`}>
+              <h4>{results.finalDisease}</h4>
+              <p>
+                {results.shouldUseModelPrediction
+                  ? "The AI model and your symptoms both strongly suggest this condition."
+                  : "Using symptom analysis as the primary indicator."}
+              </p>
+            </div>
+          </div>
+          
+          <div className="recommendations">
+            <h4>Recommendations:</h4>
+            <ul>
+              {results.recommendations.map((rec, i) => (
+                <li key={i}>{rec}</li>
+              ))}
+            </ul>
+          </div>
+          
+          <div className="action-buttons">
+            <button 
+              className="appointment-button"
+              onClick={() => navigate('/AppointmentPage')}
+            >
+              Book Appointment Now
+            </button>
+            <button 
+              className="new-check-button"
+              onClick={() => {
+                setImage(null);
+                setImageFile(null);
+                setResults(null);
+                setSymptoms({
+                  itching: "",
+                  redness: "",
+                  swelling: "",
+                  pain: "",
+                  scaling: "",
+                  pus: "",
+                  circular: "",
+                  cracking: "",
+                  location: ""
+                });
+              }}
+            >
+              Perform New Check
+            </button>
           </div>
         </div>
       )}

@@ -1,0 +1,4 @@
+flask==3.0.0
+tensorflow>=2.16.1  # or "tensorflow-cpu" if no GPU
+numpy==1.26.0
+werkzeug==3.0.1

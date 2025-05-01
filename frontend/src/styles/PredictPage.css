@@ -1,0 +1,53 @@
+/* PredictPage.css - Component Specific Styles */
+
+/* Container */
+.predict-container {
+    max-width: 800px;
+    margin: var(--space-xl) auto;
+    padding: var(--space-lg);
+    background-color: var(--white);
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  }
+  
+  /* Form Elements */
+  .file-input-container {
+    display: flex;
+    align-items: center;
+    gap: var(--space-md);
+    margin-bottom: var(--space-lg);
+  }
+  
+  .file-input-label {
+    padding: var(--space-sm) var(--space-md);
+    background-color: var(--primary-color);
+    color: var(--white);
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  
+  .file-input-label:hover {
+    background-color: var(--primary-hover);
+  }
+  
+  /* Results Section */
+  .result-container {
+    margin-top: var(--space-xl);
+    padding: var(--space-lg);
+    background-color: var(--light-gray);
+    border-left: 5px solid var(--primary-color);
+  }
+  
+  .disease-name {
+    font-size: 1.5rem;
+    color: var(--primary-color);
+    margin-bottom: var(--space-sm);
+  }
+  
+  .disease-info {
+    background-color: var(--white);
+    padding: var(--space-md);
+    border-radius: 4px;
+    margin-top: var(--space-md);
+  }

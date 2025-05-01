@@ -2,7 +2,7 @@ const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
 const util = require('util');
-const Prediction = require('../models/Predictions');
+const Prediction = require('../models/Prediction');
 const History = require('../models/History');
 
 const unlinkFile = util.promisify(fs.unlink);

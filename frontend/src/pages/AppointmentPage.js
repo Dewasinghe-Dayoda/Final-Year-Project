@@ -20,7 +20,7 @@ const AppointmentPage = () => {
       try {
         setLoading(true);
         setError(null);
-        const { data } = await getClinics('Colombo');
+        const { data } = await getClinics('Colombo', 10); // Add radius parameter
         setClinics(data);
       } catch (error) {
         console.error("API Error:", error);
