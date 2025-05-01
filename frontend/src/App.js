@@ -26,6 +26,8 @@ import Impetigo from './pages/DiseaseDetails/Impetigo';
 import AthletesFoot from './pages/DiseaseDetails/AthletesFoot';
 import Ringworm from './pages/DiseaseDetails/Ringworm';
 import PredictPage from "./components/PredictPage";
+import ScrollToTop from './components/ScrollToTop';
+import PrivateRoute from './components/PrivateRoute';
 
 function App() {
   // TensorFlow.js memory management
@@ -78,10 +80,12 @@ function App() {
     <Router><div className="container">
       <Header />
       <Navbar />
-      
+      <ScrollToTop />
       <Routes>
         <Route path="/" element={<Home />} />
-        <Route path="/QuickCheck" element={<QuickCheck />} />
+        
+        <Route path="/QuickCheck" element={<PrivateRoute><QuickCheck /> </PrivateRoute>} />
+       
         <Route path="/About" element={<About />} />
         <Route path="/Contact" element={<Contact />} />
         <Route path="/Terms" element={<TermsOfService />} />
@@ -92,7 +96,6 @@ function App() {
         <Route path="/FAQ" element={<FAQ />} />
         <Route path="/Notifications" element={<Notifications />} />
         <Route path="/PrivacyPolicy" element={<PrivacyPolicy />} />
-        {/* <Route path="/SkinCheck" element={<SkinCheck />} /> */}
         <Route path="/AppointmentPage" element={<AppointmentPage />} />
         <Route path="/clinics/:id" element={<ClinicDetailsPage />} />
         <Route path="/awareness" element={<AwarenessPage />} />

@@ -26,33 +26,34 @@ const Home = () => {
         </button>
       </section>
 
-      {/* Rest of your existing Home.js code remains the same */}
       <section className="features-section">
-        <h2 className="section-title">How It Works</h2>
-        <div className="features-container">
-          <div className="feature">
+      <h2 className="section-title">How It Works</h2>
+      <div className="features-container">
+        <div className="feature" onClick={() => navigate('/quickcheck')}>
           <img src={featureImage1} alt="Step 1" className="feature-image" />
-            <h3>Step 1: Upload Your Image</h3>
-            <p>
-              Simply upload an image of the skin condition you suspect. Make sure the image is clear and well-lit for best results.
-            </p>
-          </div>
-          <div className="feature">
-          <img src={featureImage2} alt="Step 2" className="feature-image" />
-            <h3>Step 2: AI-Powered Analysis</h3>
-            <p>
-              Our AI-powered system analyzes the image using convolutional neural networks (CNNs) to detect specific bacterial and fungal conditions.
-            </p>
-          </div>
-          <div className="feature">
-          <img src={featureImage3} alt="Step 3" className="feature-image" />
-            <h3>Step 3: Get Your Results Now</h3>
-            <p>
-              Once the analysis is complete, you'll receive a confidence score for each condition along with suggested actions for treatment.
-            </p>
-          </div>
+          <h3>Step 1: Upload Your Image</h3>
+          <p>
+            Simply upload an image of the skin condition you suspect. Make sure the image is clear and well-lit for best results.
+          </p>
         </div>
-      </section>
+        
+        <div className="feature" onClick={() => navigate('/quickcheck')}>
+          <img src={featureImage2} alt="Step 2" className="feature-image" />
+          <h3>Step 2: AI-Powered Analysis</h3>
+          <p>
+            Our AI-powered system analyzes the image using convolutional neural networks (CNNs) to detect specific bacterial and fungal conditions.
+          </p>
+        </div>
+        
+        <div className="feature" onClick={() => navigate('/quickcheck')}>
+          <img src={featureImage3} alt="Step 3" className="feature-image" />
+          <h3>Step 3: Get Your Results Now</h3>
+          <p>
+            Once the analysis is complete, you'll receive a confidence score for each condition along with suggested actions for treatment.
+          </p>
+        </div>
+      </div>
+    </section>
 
       <section className="about-section">
         <h2 className="section-title">Why Choose SkinProScan?</h2>

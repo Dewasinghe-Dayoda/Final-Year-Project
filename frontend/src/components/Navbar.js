@@ -1,7 +1,6 @@
 import React from "react";
-import { Link } from "react-router-dom";
-import "../styles/Navbar.css"; 
-//import logo from "../assets/SkinProScan_logo1.png"; 
+import { NavLink } from "react-router-dom";
+import "../styles/Navbar.css";
 
 const Navbar = () => {
   return (
@@ -10,12 +9,13 @@ const Navbar = () => {
         <span className="logo-text">SkinProScan</span>
       </div>
       <ul className="nav-links">
-        <li><Link to="/">Home</Link></li>
-        <li><Link to="/awareness">Explore Conditions</Link></li>
-        <li><Link to="/about">About</Link></li>
-        <li><Link to="/quickcheck">Quick Check</Link></li>
-        <li><Link to="/contact">Contact</Link></li>
-        <li><Link to="/UserProfile">Profile</Link></li>
+        <li><NavLink to="/" end className={({ isActive }) => isActive ? "nav-link active-link" : "nav-link"}>Home</NavLink></li>
+        <li><NavLink to="/quickcheck" className={({ isActive }) => isActive ? "nav-link active-link" : "nav-link"}>Quick Check</NavLink></li>
+        <li><NavLink to="/awareness" className={({ isActive }) => isActive ? "nav-link active-link" : "nav-link"}>Explore Conditions</NavLink></li>
+        <li><NavLink to="/about" className={({ isActive }) => isActive ? "nav-link active-link" : "nav-link"}>About</NavLink></li>
+        <li><NavLink to="/contact" className={({ isActive }) => isActive ? "nav-link active-link" : "nav-link"}>Contact</NavLink></li>
+        <li><NavLink to="/FAQ" className={({ isActive }) => isActive ? "nav-link active-link" : "nav-link"}>FAQ</NavLink></li>
+        <li><NavLink to="/UserProfile" className={({ isActive }) => isActive ? "nav-link active-link" : "nav-link"}>Profile</NavLink></li>
       </ul>
     </nav>
   );

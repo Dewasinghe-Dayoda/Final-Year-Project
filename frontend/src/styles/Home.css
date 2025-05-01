@@ -84,10 +84,13 @@
   border-radius: var(--border-radius-small);
   text-align: center;
   transition: box-shadow var(--transition-default);
+  cursor: pointer;
 }
 
 .feature:hover {
-  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  transform: translateY(-5px);
+  box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+
 }
 
 .feature img {
