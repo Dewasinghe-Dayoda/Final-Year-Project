@@ -182,7 +182,7 @@
 .option-button {
   padding: 0.5rem 1rem;
   border: 1px solid #ddd;
-  background: white;
+  background: rgb(199, 196, 196);
   border-radius: 5px;
   cursor: pointer;
   transition: all 0.2s;
@@ -402,11 +402,33 @@
     padding: 1rem;
   }
   
+  .option-button.yes:hover {
+    background-color: rgb(182, 233, 182);
+  }
+  
+  .option-button.no:hover {
+    background-color: #fac5c5; /* Light red */
+  }
+
   .yes-no-buttons {
     flex-direction: column;
     gap: 0.5rem;
   }
   
+  .option-button.yes.selected {
+    background-color: rgb(5, 192, 5);
+    color: white;
+    border-color: #ffffff;
+  }
+  .option-button.no.selected {
+    background-color: rgb(216, 38, 38);
+    color: white;
+    border-color: #ffffff;
+  }
+  .option-button {
+    background-color: #f0f0f0;
+    color: black;
+  }
   .action-buttons {
     flex-direction: column;
   }

@@ -232,7 +232,7 @@ const QuickCheck = () => {
                           {['yes', 'no'].map(option => (
                             <button
                               key={option}
-                              className={`option-button ${value === option ? 'selected' : ''}`}
+                              className={`option-button ${option} ${value === option ? 'selected' : ''}`}
                               onClick={() => handleSymptomChange(symptom, option)}
                               type="button"
                             >
