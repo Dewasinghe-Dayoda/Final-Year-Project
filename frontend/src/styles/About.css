@@ -19,6 +19,7 @@
 .about-hero h1 {
   font-size: 4rem;
   margin-bottom: 20px;
+  color: rgb(255, 255, 255);
 }
 
 .about-hero p {

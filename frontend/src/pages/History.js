@@ -1,8 +1,8 @@
 // keep the previous results of the user in this page
 // Purpose: Allow users to see past QuickCheck predictions.
-// 📌 How? Store previous results in localStorage (if unauthenticated) or in the database (for logged-in users).
-// 📌 Location: src/pages/History.js
-// 📌 Navigation: Add a button in UserProfile.js to access this page.
+// How? Store previous results in localStorage (if unauthenticated) or in the database (for logged-in users).
+// Location: src/pages/History.js
+//  Navigation: Add a button in UserProfile.js to access this page.
 
 // import React from "react";
 // import api from '../api';

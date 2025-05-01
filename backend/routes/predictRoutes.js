@@ -1,21 +1,20 @@
 const express = require('express');
 const router = express.Router();
-const path = require('path');
-const fs = require('fs');
-const { upload, cleanupFile } = require('../controllers/predictionController');
+const { 
+  upload, 
+  cleanupFile,
+  cleanupFileAsync,
+  calculateSymptomMatch,
+  combineResults
+} = require('../controllers/predictionController');
 const authMiddleware = require('../middleware/authMiddleware');
+const Prediction = require('../models/Predictions');
 const History = require('../models/History');
 
-/**
- * @route POST /api/predict/save-result
- * @desc Save prediction results from frontend analysis
- * @access Private
- */
 router.post('/save-result', authMiddleware, async (req, res) => {
   try {
     const { results, imageInfo, symptoms } = req.body;
     
-    // Validate request data
     if (!results || !Array.isArray(results)) {
       return res.status(400).json({ error: 'Invalid prediction data format' });
     }
@@ -23,21 +22,27 @@ router.post('/save-result', authMiddleware, async (req, res) => {
       return res.status(400).json({ error: 'Missing image information' });
     }
 
-    // Calculate recommendation metrics
-    const primaryResult = results[0]; // Results should be pre-sorted by confidence
-    const needsConsultation = primaryResult.rawConfidence > 0.5;
-    const urgency = primaryResult.rawConfidence > 0.7 ? 'high' : 
-                   primaryResult.rawConfidence > 0.5 ? 'medium' : 'low';
+    // Calculate symptom matches
+    const symptomResults = calculateSymptomMatch(symptoms);
+    const combinedResults = combineResults(results, symptomResults);
+    
+    const primaryResult = combinedResults[0];
+    const needsConsultation = primaryResult.combinedConfidence > 50;
+    const urgency = primaryResult.combinedConfidence > 70 ? 'high' : 
+                   primaryResult.combinedConfidence > 50 ? 'medium' : 'low';
 
-    const historyEntry = await History.create({
+    // Save to Prediction collection
+    const prediction = await Prediction.create({
       userId: req.user.id,
       imageName: imageInfo.name,
       imageSize: imageInfo.size,
       predictionResults: results,
-      symptoms: symptoms || {},
+      symptomResults,
+      combinedResults,
+      symptoms,
       diagnosis: {
         condition: primaryResult.disease,
-        confidence: primaryResult.confidence
+        confidence: primaryResult.combinedConfidence
       },
       recommendation: {
         needsConsultation,
@@ -46,10 +51,22 @@ router.post('/save-result', authMiddleware, async (req, res) => {
       }
     });
 
+    // Also save to History collection
+    const historyEntry = await History.create({
+      userId: req.user.id,
+      predictionId: prediction._id,
+      imageName: imageInfo.name,
+      imageSize: imageInfo.size,
+      diagnosis: prediction.diagnosis,
+      recommendation: prediction.recommendation,
+      timestamp: new Date()
+    });
+
     res.json({ 
       success: true, 
+      prediction,
       historyEntry,
-      recommendation: historyEntry.recommendation
+      recommendation: prediction.recommendation
     });
   } catch (error) {
     console.error('Error saving prediction:', error);
@@ -60,11 +77,6 @@ router.post('/save-result', authMiddleware, async (req, res) => {
   }
 });
 
-/**
- * @route POST /api/predict/upload-image
- * @desc Upload image for optional server-side processing
- * @access Private
- */
 router.post('/upload-image', authMiddleware, upload.single('image'), async (req, res) => {
   try {
     if (!req.file) {
@@ -83,9 +95,8 @@ router.post('/upload-image', authMiddleware, upload.single('image'), async (req,
   } catch (error) {
     console.error('Image upload error:', error);
     
-    // Clean up uploaded file if error occurred
     if (req.file?.path) {
-      await cleanupFile(req.file.path).catch(cleanupError => {
+      await cleanupFileAsync(req.file.path).catch(cleanupError => {
         console.error('Failed to cleanup file:', cleanupError);
       });
     }

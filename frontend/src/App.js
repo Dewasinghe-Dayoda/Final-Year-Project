@@ -4,6 +4,7 @@ import * as tf from '@tensorflow/tfjs';
 import Header from "./components/Header";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
+import './styles/GlobalStyle.css';
 import Home from "./pages/Home";
 import QuickCheck from "./pages/QuickCheck";
 import About from "./pages/About";
@@ -16,7 +17,7 @@ import History from "./pages/History";
 import FAQ from "./pages/FAQ";
 import Notifications from "./pages/Notifications";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
-import SkinCheck from "./components/SkinCheck";
+// import SkinCheck from "./components/SkinCheck";
 import AppointmentPage from "./pages/AppointmentPage";
 import ClinicDetailsPage from './pages/ClinicDetailsPage';
 import AwarenessPage from './pages/AwarenessPage';
@@ -73,9 +74,10 @@ function App() {
   }, []);
 
   return (
-    <Router>
+    <Router><div className="container">
       <Header />
       <Navbar />
+      
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/QuickCheck" element={<QuickCheck />} />
@@ -89,7 +91,7 @@ function App() {
         <Route path="/FAQ" element={<FAQ />} />
         <Route path="/Notifications" element={<Notifications />} />
         <Route path="/PrivacyPolicy" element={<PrivacyPolicy />} />
-        <Route path="/SkinCheck" element={<SkinCheck />} />
+        {/* <Route path="/SkinCheck" element={<SkinCheck />} /> */}
         <Route path="/AppointmentPage" element={<AppointmentPage />} />
         <Route path="/clinics/:id" element={<ClinicDetailsPage />} />
         <Route path="/awareness" element={<AwarenessPage />} />
@@ -98,8 +100,9 @@ function App() {
         <Route path="/disease/athletes-foot" element={<AthletesFoot />} />
         <Route path="/disease/ringworm" element={<Ringworm />} />
       </Routes>
+     
       <Footer />
-    </Router>
+     </div></Router>
   );
 }
 

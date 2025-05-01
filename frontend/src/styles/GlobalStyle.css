@@ -1,0 +1,115 @@
+:root {
+  /* Define reusable variables */
+  --primary-color: #084974;
+  --secondary-color: #495057;
+  --background-color: #f8f9fa;
+  --white-color: #ffffff;
+  
+  --font-family: 'Arial', sans-serif;
+
+  --font-size-heading-1: 3rem;
+  --font-size-heading-2: 2.5rem;
+  --font-size-heading-3: 2rem;
+  --font-size-body: 1.2rem;
+  --font-size-small: 1rem;
+
+  --border-radius-small: 8px;
+  --border-radius-large: 30px;
+
+  --transition-default: 0.3s ease;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: var(--font-family);
+  background-color: var(--background-color);
+  color: var(--secondary-color);
+}
+
+/* Universal Button Styles */
+button,
+.cta-button { /* Also match .cta-button */
+  font-family: var(--font-family);
+  padding: 10px 20px;
+  font-size: var(--font-size-body);
+  border-radius: var(--border-radius-small);
+  border: none;
+  cursor: pointer;
+  background-color: var(--primary-color);
+  color: var(--white-color);
+  transition: background-color var(--transition-default);
+}
+
+button:hover,
+.cta-button:hover {
+  background-color: #af4052;
+}
+
+/* Headings */
+h1 {
+  font-size: var(--font-size-heading-1);
+  color: var(--primary-color);
+  margin-bottom: 20px;
+}
+
+h2 {
+  font-size: var(--font-size-heading-2);
+  color: var(--primary-color);
+  margin-bottom: 15px;
+}
+
+h3 {
+  font-size: var(--font-size-heading-3);
+  color: var(--primary-color);
+  margin-bottom: 10px;
+}
+
+/* Paragraphs */
+p {
+  font-size: var(--font-size-body);
+  line-height: 1.6;
+  margin-bottom: 15px;
+}
+
+/* Links */
+a {
+  text-decoration: none;
+  color: var(--primary-color);
+  transition: color var(--transition-default);
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+/* Container */
+.container {
+  max-width: auto;
+  margin: 0 auto;
+  padding: 20px;
+
+  
+  margin: 0 ;
+  padding: 0;
+
+}
+
+/* Utility classes */
+.text-center {
+  text-align: center;
+}
+
+.bg-primary {
+  background-color: var(--primary-color);
+  color: var(--white-color);
+}
+
+.bg-secondary {
+  background-color: var(--secondary-color);
+  color: var(--white-color);
+}
+
+.rounded-large {
+  border-radius: var(--border-radius-large);
+}

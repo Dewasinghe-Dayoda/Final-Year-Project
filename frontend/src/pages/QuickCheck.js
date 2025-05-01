@@ -1,10 +1,46 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import * as tf from '@tensorflow/tfjs';
 import "../styles/QuickCheck.css";
 import uploadIcon from "../assets/upload-icon.png";
 import { savePredictionResult } from '../api';
-import SymptomForm from '../components/SymptomForm';
+import '@tensorflow/tfjs-backend-webgl';
+
+// Symptom patterns for each disease (1 = yes, 0 = no, -1 = doesn't matter)
+const DISEASE_SYMPTOMS = {
+  'Cellulitis': {
+    itching: 1,
+    redness: 1,
+    swelling: 1,
+    pain: 1,
+    scaling: 0,
+    pus: 0
+  },
+  'Impetigo': {
+    itching: 1,
+    redness: 1,
+    swelling: 0,
+    pain: 0,
+    scaling: 1,
+    pus: 1
+  },
+  'Ringworm': {
+    itching: 1,
+    redness: 1,
+    swelling: 0,
+    pain: 0,
+    scaling: 1,
+    pus: 0
+  },
+  'Athlete Foot': {
+    itching: 1,
+    redness: 1,
+    swelling: 0,
+    pain: 0,
+    scaling: 1,
+    pus: 0
+  }
+};
 
 const QuickCheck = () => {
   const navigate = useNavigate();
@@ -13,7 +49,7 @@ const QuickCheck = () => {
   const [imageFile, setImageFile] = useState(null);
   const [results, setResults] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [modelLoading, setModelLoading] = useState(true);
+  const [modelLoading, setModelLoading] = useState(false);
   const [modelError, setModelError] = useState(null);
   const [symptoms, setSymptoms] = useState({
     itching: "",
@@ -23,42 +59,36 @@ const QuickCheck = () => {
     scaling: "",
     pus: "",
   });
+  const [symptomMatch, setSymptomMatch] = useState(null);
 
-  // Enhanced model loading with error handling
-  useEffect(() => {
-    const loadModel = async () => {
-      try {
-        console.log('Loading TensorFlow model...');
-        const modelUrl = process.env.PUBLIC_URL + '/tfjs_final_correct/model.json';
-        const loadedModel = await tf.loadLayersModel(modelUrl);
-        
-        // Verify model architecture
-        if (!loadedModel || !loadedModel.inputs || !loadedModel.outputs) {
-          throw new Error('Model loaded but appears invalid');
-        }
-        
-        setModel(loadedModel);
-        console.log('Model loaded successfully');
-      } catch (error) {
-        console.error('Model loading error:', error);
-        setModelError(error);
-      } finally {
-        setModelLoading(false);
+  const loadModel = async () => {
+    try {
+      setModelLoading(true);
+      setModelError(null);
+      const modelUrl = process.env.PUBLIC_URL + '/skinproscan_224_tfjs_model/model.json';
+      const loadedModel = await tf.loadGraphModel(modelUrl);
+      
+      if (!loadedModel || !loadedModel.inputs || !loadedModel.outputs) {
+        throw new Error('Model loaded but appears invalid');
       }
-    };
-
-    loadModel();
-
-    return () => {
-      if (model) {
-        model.dispose();
+      
+      const inputShape = loadedModel.inputs[0].shape;
+      if (!inputShape || inputShape[1] !== 224 || inputShape[2] !== 224) {
+        throw new Error('Model expects incorrect input dimensions');
       }
-    };
-  }, [model]);
+      
+      setModel(loadedModel);
+    } catch (error) {
+      console.error('Model loading error:', error);
+      setModelError(error.toString());
+    } finally {
+      setModelLoading(false);
+    }
+  };
 
   const handleImageUpload = (e) => {
     const file = e.target.files[0];
-    if (file && file.size < 5 * 1024 * 1024) { // 5MB limit
+    if (file && file.size < 5 * 1024 * 1024) {
       setImage(URL.createObjectURL(file));
       setImageFile(file);
       setResults(null);
@@ -74,23 +104,75 @@ const QuickCheck = () => {
     }));
   };
 
-  const preprocessImage = (imgElement) => {
-    return tf.tidy(() => {
-      return tf.browser.fromPixels(imgElement)
-        .resizeNearestNeighbor([128, 128])
-        .toFloat()
-        .div(tf.scalar(255.0))
-        .expandDims();
+  const calculateSymptomMatch = () => {
+    const userAnswers = {
+      itching: symptoms.itching === 'yes' ? 1 : 0,
+      redness: symptoms.redness === 'yes' ? 1 : 0,
+      swelling: symptoms.swelling === 'yes' ? 1 : 0,
+      pain: symptoms.pain === 'yes' ? 1 : 0,
+      scaling: symptoms.scaling === 'yes' ? 1 : 0,
+      pus: symptoms.pus === 'yes' ? 1 : 0
+    };
+
+    const matches = {};
+    let totalPossible = 0;
+
+    // Calculate match percentage for each disease
+    Object.keys(DISEASE_SYMPTOMS).forEach(disease => {
+      const pattern = DISEASE_SYMPTOMS[disease];
+      let matchCount = 0;
+      let totalRelevant = 0;
+
+      Object.keys(pattern).forEach(symptom => {
+        if (pattern[symptom] !== -1) { // Only consider symptoms that matter for this disease
+          totalRelevant++;
+          if (userAnswers[symptom] === pattern[symptom]) {
+            matchCount++;
+          }
+        }
+      });
+
+      const percentage = totalRelevant > 0 ? Math.round((matchCount / totalRelevant) * 100) : 0;
+      matches[disease] = percentage;
+      totalPossible += percentage;
     });
+
+    // Normalize percentages so they sum to 100
+    const normalizedMatches = {};
+    Object.keys(matches).forEach(disease => {
+      normalizedMatches[disease] = totalPossible > 0 
+        ? Math.round((matches[disease] / totalPossible) * 100) 
+        : 0;
+    });
+
+    // Sort by highest match
+    const sortedMatches = Object.entries(normalizedMatches)
+      .sort((a, b) => b[1] - a[1])
+      .map(([disease, percentage]) => ({ disease, percentage }));
+
+    setSymptomMatch(sortedMatches);
+    return sortedMatches;
   };
 
+  const preprocessImage = (imgElement) => {
+    return tf.tidy(() => {
+      const tensor = tf.browser.fromPixels(imgElement)
+        .resizeNearestNeighbor([224, 224])
+        .toFloat()
+        .div(tf.scalar(255.0));
+      return tensor.expandDims(0);
+    });
+  };
+  
   const predictImage = async (imgElement) => {
     if (!model) throw new Error('Model not loaded');
     
     const tensor = preprocessImage(imgElement);
     try {
-      const prediction = model.predict(tensor);
+      const prediction = model.execute(tensor);
       const results = await prediction.data();
+      
+      tf.dispose(prediction);
       
       const diseases = ['Cellulitis', 'Impetigo', 'Ringworm', 'Athlete Foot'];
       return diseases.map((disease, index) => ({
@@ -105,11 +187,36 @@ const QuickCheck = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!imageFile || !model) return;
-    
+    if (!imageFile) {
+      alert('Please upload an image first');
+      return;
+    }
+  
+    // Check if at least one symptom is answered
+    const answeredSymptoms = Object.values(symptoms).filter(val => val !== "").length;
+    if (answeredSymptoms === 0) {
+      alert('Please answer at least one symptom question');
+      return;
+    }
+  
     setLoading(true);
+    setModelError(null);
     
     try {
+      // Calculate symptom matches first
+      const symptomResults = calculateSymptomMatch();
+      console.log('Symptom Results:', symptomResults); // Debug log
+  
+      // Load model if not already loaded
+      if (!model) {
+        await loadModel();
+        if (modelError) {
+          console.error('Model failed to load:', modelError);
+          return;
+        }
+      }
+  
+      // Process image prediction
       const imgElement = new Image();
       imgElement.src = URL.createObjectURL(imageFile);
       
@@ -117,82 +224,85 @@ const QuickCheck = () => {
         imgElement.onload = resolve;
         imgElement.onerror = () => reject(new Error('Failed to load image'));
       });
-      
+  
       const predictionResults = await predictImage(imgElement);
-      const formattedResults = formatResults(predictionResults);
-      
+      console.log('Image Prediction Results:', predictionResults); // Debug log
+  
+      // Combine results
+      const combinedResults = combineResults(predictionResults, symptomResults);
+      console.log('Combined Results:', combinedResults); // Debug log
+  
+      const formattedResults = formatResults(combinedResults);
+      console.log('Formatted Results:', formattedResults); // Debug log
+  
       setResults(formattedResults);
+      
+      // Save to backend
       await savePredictionResult({
         imageName: imageFile.name,
         results: predictionResults,
         symptoms,
+        symptomMatch: symptomResults,
         finalDiagnosis: formattedResults
       });
+  
     } catch (error) {
       console.error("Prediction error:", error);
-      alert(`Error: ${error.message}`);
+      setModelError(error.toString());
     } finally {
       setLoading(false);
     }
   };
 
-  const formatResults = (predictionResults) => {
-    const topResult = predictionResults[0];
+  const combineResults = (imageResults, symptomResults) => {
+    // Create a map of disease to image confidence
+    const imageConfidence = {};
+    imageResults.forEach(result => {
+      imageConfidence[result.disease] = parseFloat(result.confidence);
+    });
+  
+    // Combine with symptom results (weighted average)
+    return symptomResults.map(symptomResult => {
+      const imageConf = imageConfidence[symptomResult.disease] || 0;
+      // Weighted average: 60% image, 40% symptoms
+      const combinedConf = (imageConf * 0.6) + (symptomResult.percentage * 0.4);
+      return {
+        disease: symptomResult.disease,
+        imageConfidence: imageConf,
+        symptomConfidence: symptomResult.percentage,
+        combinedConfidence: combinedConf
+      };
+    }).sort((a, b) => b.combinedConfidence - a.combinedConfidence);
+
+  };
+
+  const formatResults = (combinedResults) => {
+    const topResult = combinedResults[0];
     return {
       condition: topResult.disease,
-      confidence: parseFloat(topResult.confidence),
-      description: `The AI analysis suggests a ${topResult.confidence}% likelihood of ${topResult.disease}.`,
+      confidence: parseFloat(topResult.combinedConfidence.toFixed(2)),
+      imageConfidence: topResult.imageConfidence,
+      symptomConfidence: topResult.symptomConfidence,
+      description: `The AI analysis suggests a ${topResult.combinedConfidence.toFixed(2)}% likelihood of ${topResult.disease}.`,
+      symptomDescription: `Based on your symptoms, there's a ${topResult.symptomConfidence}% match with ${topResult.disease}.`,
       recommendations: getRecommendations(topResult.disease),
-      allResults: predictionResults
+      allResults: combinedResults
     };
   };
 
   const getRecommendations = (condition) => {
     const recommendations = {
-      'Cellulitis': ["Apply prescribed antibiotics", "Keep the area clean and elevated"],
-      'Impetigo': ["Use antibiotic ointment", "Keep the area clean and dry"],
-      'Ringworm': ["Apply antifungal cream", "Wash bedding in hot water"],
-      'Athlete Foot': ["Use antifungal powder", "Keep feet dry"]
+      'Cellulitis': ["Apply prescribed antibiotics", "Keep the area clean and elevated", "Seek medical attention if fever develops"],
+      'Impetigo': ["Use antibiotic ointment", "Keep the area clean and dry", "Avoid scratching the affected area"],
+      'Ringworm': ["Apply antifungal cream", "Wash bedding in hot water", "Keep the area dry and clean"],
+      'Athlete Foot': ["Use antifungal powder", "Keep feet dry", "Wear breathable shoes and socks"]
     };
     return recommendations[condition] || [
       "Consult a dermatologist",
-      "Keep the area clean and dry"
+      "Keep the area clean and dry",
+      "Avoid scratching the affected area"
     ];
   };
-
-  if (modelLoading) {
-    return (
-      <div className="quick-check-container">
-        <div className="model-loading">
-          <h2>Loading AI Model</h2>
-          <div className="spinner"></div>
-          <p>This may take a few moments...</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (modelError) {
-    return (
-      <div className="quick-check-container">
-        <div className="error-message">
-          <h3>Model Loading Failed</h3>
-          <p>{modelError.message}</p>
-          <p>Please check:</p>
-          <ul>
-            <li>All model files are in /public/trained_model/tfjs_model/</li>
-            <li>Files include model.json and .bin weights</li>
-          </ul>
-          <button 
-            className="retry-button"
-            onClick={() => window.location.reload()}
-          >
-            Reload Page
-          </button>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="quick-check-container">
@@ -243,24 +353,74 @@ const QuickCheck = () => {
                 >
                   {loading ? 'Analyzing...' : 'Check Skin Condition'}
                 </button>
+
+                {modelLoading && (
+                  <div className="model-status">
+                    <div className="spinner small"></div>
+                    <p>Loading AI model...</p>
+                  </div>
+                )}
+                {modelError && !modelLoading && (
+                  <div className="model-error">
+                    <p className="error-text">Model failed to load:</p>
+                    <p className="error-detail">{modelError}</p>
+                    <button 
+                      className="retry-button small"
+                      onClick={loadModel}
+                    >
+                      Retry
+                    </button>
+                  </div>
+                )}
               </div>
             </div>
           )}
         </div>
       ) : (
-        <div className="results-section">
-          <h2>Analysis Results</h2>
-          <div className="result-card">
-            <h3>{results.condition}</h3>
-            <div className="confidence-meter">
-              <div 
-                className="confidence-fill" 
-                style={{ width: `${results.confidence}%` }}
-              ></div>
-              <span>{results.confidence}%</span>
-            </div>
-            <p className="result-description">{results.description}</p>
-            
+          <div className="results-section">
+            <h2>Analysis Results</h2>
+            <div className="result-card">
+              <h3>{results.condition}</h3>
+              <div className="confidence-meter">
+                <div 
+                  className="confidence-fill" 
+                  style={{ width: `${results.confidence}%` }}
+                ></div>
+                <span>{results.confidence}%</span>
+              </div>
+              
+              <div className="result-description">
+                <p>{results.description}</p>
+                <div className="symptom-match">
+                  <h4>Symptom Match:</h4>
+                  <p>{results.symptomDescription}</p>
+                </div>
+              </div>
+              
+              <div className="results-breakdown">
+                <h4>Detailed Breakdown:</h4>
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Condition</th>
+                      <th>Image Analysis</th>
+                      <th>Symptom Match</th>
+                      <th>Combined</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {results.allResults.map((result, index) => (
+                      <tr key={index} className={index === 0 ? 'top-result' : ''}>
+                        <td>{result.disease}</td>
+                        <td>{result.imageConfidence.toFixed(2)}%</td>
+                        <td>{result.symptomConfidence}%</td>
+                        <td>{result.combinedConfidence.toFixed(2)}%</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+
             <div className="recommendations">
               <h4>Recommendations:</h4>
               <ul>
@@ -269,13 +429,6 @@ const QuickCheck = () => {
                 ))}
               </ul>
             </div>
-
-            {symptoms.length > 0 && (
-              <SymptomForm 
-                disease={results.allResults[0].disease} 
-                onComplete={() => navigate('/appointment')}
-              />
-            )}
             
             <div className="action-buttons">
               <button 
