@@ -29,7 +29,7 @@ body {
 
 /* Universal Button Styles */
 button,
-.cta-button { /* Also match .cta-button */
+.cta-button {
   font-family: var(--font-family);
   padding: 10px 20px;
   font-size: var(--font-size-body);
@@ -43,7 +43,7 @@ button,
 
 button:hover,
 .cta-button:hover {
-  background-color: #af4052;
+  background-color: #7dadc4;
 }
 
 /* Headings */

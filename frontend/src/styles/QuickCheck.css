@@ -177,6 +177,7 @@
   display: flex;
   gap: 1rem;
   margin-top: 0.5rem;
+  
 }
 
 .option-button {
@@ -186,12 +187,13 @@
   border-radius: 5px;
   cursor: pointer;
   transition: all 0.2s;
+  width: 100%; 
 }
 
 .option-button.selected {
-  background: #3498db;
+  background: #db346c;;
   color: white;
-  border-color: #3498db;
+  border-color: #db346c;;
 }
 
 /* Location Selector Styles */

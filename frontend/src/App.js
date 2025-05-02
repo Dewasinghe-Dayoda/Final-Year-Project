@@ -28,6 +28,7 @@ import Ringworm from './pages/DiseaseDetails/Ringworm';
 import PredictPage from "./components/PredictPage";
 import ScrollToTop from './components/ScrollToTop';
 import PrivateRoute from './components/PrivateRoute';
+import AppointmentHistory from './pages/AppointmentHistory';
 
 function App() {
   // TensorFlow.js memory management
@@ -104,6 +105,7 @@ function App() {
         <Route path="/disease/athletes-foot" element={<AthletesFoot />} />
         <Route path="/disease/ringworm" element={<Ringworm />} />   
         <Route path="/skin-check" element={<PredictPage />} />   
+        <Route path="/appointmenthistory" element={<PrivateRoute><AppointmentHistory /></PrivateRoute>} />
       </Routes>
       <Footer />
      </div></Router>

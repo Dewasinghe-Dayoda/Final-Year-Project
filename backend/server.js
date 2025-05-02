@@ -3,7 +3,9 @@ const connectDB = require('./db');
 const cors = require('cors');
 const predictRoutes = require('./routes/predictRoutes');
 const authRoutes = require('./routes/authRoutes');
-const clinicRoutes = require('./routes/clinicRoutes'); // Add this line
+const clinicRoutes = require('./routes/clinicRoutes'); 
+const appointmentRoutes = require('./routes/appointmentRoutes');
+const notificationRoutes = require('./routes/notificationRoutes');
 
 const app = express();
 
@@ -27,7 +29,9 @@ connectDB();
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/quickcheck', predictRoutes);
-app.use('/api/clinics', clinicRoutes); // Add this line to mount clinic routes
+app.use('/api/clinics', clinicRoutes); 
+app.use('/api/appointments', appointmentRoutes);
+app.use('/api/notifications', notificationRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => res.json({ status: 'OK' }));

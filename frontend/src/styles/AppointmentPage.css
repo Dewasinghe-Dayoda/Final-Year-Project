@@ -131,12 +131,150 @@
   background: #2980b9;
 }
 
-@media (max-width: 768px) {
+/* @media (max-width: 768px) {
   .clinics-grid {
     grid-template-columns: 1fr;
   }
   
   .appointment-container {
     padding: 1rem;
+  }
+} */
+
+.appointment-history-container {
+  max-width: 900px;
+  margin: 2rem auto;
+  padding: 1.5rem;
+}
+
+.appointment-history-container h2 {
+  text-align: center;
+  margin-bottom: 2rem;
+  color: #2c3e50;
+}
+
+.no-appointments {
+  text-align: center;
+  padding: 2rem;
+  background: #f8f9fa;
+  border-radius: 8px;
+}
+
+.btn-book {
+  background: #3498db;
+  color: white;
+  padding: 0.8rem 1.5rem;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 1rem;
+  margin-top: 1rem;
+  transition: background 0.3s;
+}
+
+.btn-book:hover {
+  background: #2980b9;
+}
+
+.appointments-list {
+  display: grid;
+  gap: 1.5rem;
+}
+
+.appointment-card {
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 1.5rem;
+  background: white;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.appointment-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid #eee;
+}
+
+.appointment-header h3 {
+  margin: 0;
+  color: #2c3e50;
+}
+
+.status-badge {
+  padding: 0.3rem 0.6rem;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
+.badge-confirmed {
+  background: #d4edda;
+  color: #155724;
+}
+
+.badge-cancelled {
+  background: #f8d7da;
+  color: #721c24;
+}
+
+.badge-completed {
+  background: #e2e3e5;
+  color: #383d41;
+}
+
+.badge-pending {
+  background: #fff3cd;
+  color: #856404;
+}
+
+.appointment-details p {
+  margin: 0.5rem 0;
+  color: #555;
+}
+
+.appointment-actions {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.btn-reschedule, .btn-cancel {
+  padding: 0.6rem 1rem;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: all 0.3s;
+}
+
+.btn-reschedule {
+  background: #17a2b8;
+  color: white;
+}
+
+.btn-reschedule:hover {
+  background: #138496;
+}
+
+.btn-cancel {
+  background: #dc3545;
+  color: white;
+}
+
+.btn-cancel:hover {
+  background: #c82333;
+}
+
+@media (max-width: 768px) {
+  .appointment-history-container {
+    padding: 1rem;
+  }
+  
+  .appointment-actions {
+    flex-direction: column;
+    gap: 0.5rem;
   }
 }

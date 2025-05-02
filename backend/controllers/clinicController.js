@@ -1,7 +1,8 @@
 const Clinic = require('../models/Clinic');
+const Appointment = require('../models/Appointment');
 const mongoose = require('mongoose');
 
-// Enhanced Colombo clinics data
+// Colombo clinics data
 const seedClinics = async () => {
   const count = await Clinic.countDocuments();
   if (count === 0) {
@@ -19,6 +20,7 @@ const getClinics = async (req, res) => {
 
     if (!location || typeof location !== 'string' || location.trim() === '') {
       return res.status(400).json({ 
+        success: false,
         error: "Location is required and must be a non-empty string." 
       });
     }
@@ -32,15 +34,21 @@ const getClinics = async (req, res) => {
 
     if (clinics.length === 0) {
       return res.status(404).json({ 
+        success: false,
         error: "No clinics found for the specified location." 
       });
     }
 
-    res.json(clinics);
+    res.status(200).json({
+      success: true,
+      data: clinics
+    });
   } catch (error) {
     console.error("Error fetching clinics:", error);
     res.status(500).json({ 
-      error: "Server error while fetching clinics." 
+      success: false,
+      error: "Server error while fetching clinics.",
+      details: process.env.NODE_ENV === 'development' ? error.message : undefined
     });
   }
 };
@@ -83,29 +91,84 @@ const getClinicDetails = async (req, res) => {
 // Book appointment
 const bookAppointment = async (req, res) => {
   try {
-    const { clinicId, doctorName, date, time, patientId } = req.body;
+    const { clinicId, doctorName, date, time, notes } = req.body;
+    const patientId = req.user.id; // Get from authenticated user
 
-    if (!clinicId || !doctorName || !date || !time || !patientId) {
+    // Validate all required fields
+    if (!clinicId || !doctorName || !date || !time) {
       return res.status(400).json({ 
-        error: "All booking fields are required." 
+        success: false,
+        error: "All booking fields are required",
+        missingFields: {
+          clinicId: !clinicId,
+          doctorName: !doctorName,
+          date: !date,
+          time: !time
+        }
       });
     }
 
-    res.json({
+    // Validate clinic exists
+    const clinic = await Clinic.findById(clinicId);
+    if (!clinic) {
+      return res.status(404).json({ 
+        success: false,
+        error: "Clinic not found"
+      });
+    }
+
+    // Validate doctor exists in clinic
+    if (!clinic.doctors.some(doc => doc.name === doctorName)) {
+      return res.status(400).json({ 
+        success: false,
+        error: "Doctor not found at this clinic"
+      });
+    }
+
+    // Check for existing appointment
+    const existingAppointment = await Appointment.findOne({
+      clinicId,
+      doctorName,
+      date: new Date(date),
+      time,
+      status: { $in: ['confirmed', 'pending'] }
+    });
+
+    if (existingAppointment) {
+      return res.status(409).json({
+        success: false,
+        error: "Time slot already booked"
+      });
+    }
+
+    // Create appointment
+    const appointment = new Appointment({
+      clinicId,
+      doctorName,
+      date: new Date(date),
+      time,
+      patientId,
+      notes: notes || "Skin condition consultation",
+      status: "confirmed",
+      reference: `APP-${Date.now()}-${Math.floor(Math.random() * 1000)}`
+    });
+
+    await appointment.save();
+
+    res.status(201).json({
       success: true,
       booking: {
-        reference: `BOOK-${Date.now()}`,
-        clinicId,
-        doctorName,
-        date,
-        time,
-        status: "confirmed"
+        ...appointment.toObject(),
+        clinicName: clinic.name
       }
     });
+
   } catch (error) {
     console.error("Booking error:", error);
     res.status(500).json({ 
-      error: "Server error during booking." 
+      success: false,
+      error: "Internal server error during booking",
+      details: process.env.NODE_ENV === 'development' ? error.message : undefined
     });
   }
 };
@@ -113,9 +176,8 @@ const bookAppointment = async (req, res) => {
 // Seed database on startup
 seedClinics();
 
-// Export all controller functions
 module.exports = {
   getClinics,
-  bookAppointment,
-  getClinicDetails
+  getClinicDetails,
+  bookAppointment
 };

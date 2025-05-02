@@ -2,9 +2,11 @@ import axios from 'axios';
 
 const API = axios.create({
   baseURL: 'http://localhost:5000/api',
+  timeout: 86400, //24h timeout
   headers: {
     'Content-Type': 'application/json',
   },
+  
 });
 
 // Request interceptor for auth token
@@ -16,18 +18,27 @@ API.interceptors.request.use((config) => {
   return config;
 });
 
-// Enhanced response interceptor for error handling
+//response interceptor for error handling
 API.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    if (response.data?.success === false) {
+      return Promise.rejec(response.data.error);
+    }
+    return response;
+  },
   (error) => {
-    if (error.response && error.response.status === 401) {
+    if (error.response?.status === 401) {
       localStorage.removeItem('token');
       localStorage.removeItem('userInfo');
       window.location.href = '/login';
     }
+    if (error.code === 'ECONNABORTED') {
+      return Promise.reject(new Error('Request timeout'));
+    }
     return Promise.reject(error);
   }
 );
+
 
 // API Endpoints ==============================================
 
@@ -88,16 +99,45 @@ export const submitSymptoms = (data) =>
   });
 
 // Clinic Endpoints
-export const getClinics = (location, radius = 10) => 
-  API.get(`/clinics?location=${encodeURIComponent(location)}&radius=${radius}`);
+export const getClinics = async (location, radius = 10) => {
+  try {
+    const response = await API.get(`/clinics?location=${encodeURIComponent(location)}&radius=${radius}`);
+    return {
+      data: Array.isArray(response.data) ? response.data : response.data.data,
+      status: response.status
+    };
+  } catch (error) {
+    console.error('Error fetching clinics:', error);
+    throw error;
+  }
+};
+export const getClinicDetails = (id) => {
+  if (!id || !/^[0-9a-fA-F]{24}$/.test(id)) {
+    return Promise.reject(new Error('Invalid clinic ID format'));
+  }
+  return API.get(`/clinics/${id}`);
+};
 
-export const getClinicDetails = (id) => API.get(`/clinics/${id}`);
-export const bookAppointment = (bookingData) => API.post('/clinics/book', bookingData);
-
+export const bookAppointment = (bookingData) => {
+  if (!bookingData?.clinicId || !bookingData?.doctorName || 
+      !bookingData?.date || !bookingData?.time || !bookingData?.patientId) {
+    return Promise.reject(new Error('Missing required booking fields'));
+  }
+  return API.post('/clinics/book', bookingData);
+};
 // New Symptom Analysis Endpoint
 export const analyzeSymptoms = (symptoms) => 
   API.post('/predict/analyze-symptoms', { symptoms }, {
     timeout: 6000
   });
+
+  // Appointment Endpoints
+export const getAppointments = () => API.get('/appointments');
+export const cancelAppointment = (id) => API.delete(`/appointments/${id}`);
+
+// Notification Endpoints
+export const getNotifications = () => API.get('/notifications');
+export const markNotificationAsRead = (id) => API.put(`/notifications/${id}/read`);
+export const deleteNotification = (id) => API.delete(`/notifications/${id}`);
 
 export default API;

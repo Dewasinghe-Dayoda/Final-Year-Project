@@ -1,30 +1,31 @@
 import React, { useState, useEffect } from 'react';
-import { getClinics } from '../api';
 import { useNavigate } from 'react-router-dom';
+import { getClinics } from '../api';
 import '../styles/AppointmentPage.css';
 
 const AppointmentPage = () => {
-  const [clinics, setClinics] = useState([]);
+  const [clinics, setClinics] = useState([]); // Initialize as empty array
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
-    const token = localStorage.getItem('token');
-    if (!token) {
-      navigate('/login');
-      return;
-    }
-
     const fetchClinics = async () => {
       try {
         setLoading(true);
         setError(null);
-        const { data } = await getClinics('Colombo', 10); // Add radius parameter
-        setClinics(data);
+        const response = await getClinics('Colombo', 10);
+        
+        // Ensure response.data is an array before setting state
+        if (response.data && Array.isArray(response.data)) {
+          setClinics(response.data);
+        } else {
+          throw new Error("Invalid clinics data format");
+        }
       } catch (error) {
         console.error("API Error:", error);
-        setError("Failed to load clinics. Please try again.");
+        setError(error.message || "Failed to load clinics. Please try again.");
+        setClinics([]); // Reset to empty array on error
       } finally {
         setLoading(false);
       }
@@ -41,7 +42,8 @@ const AppointmentPage = () => {
       {error && <p className="error-message">{error}</p>}
 
       <div className="clinics-grid">
-        {clinics.map(clinic => (
+        {/* Safely map over clinics array */}
+        {Array.isArray(clinics) && clinics.map(clinic => (
           <div key={clinic._id} className="clinic-card">
             <div className="clinic-image">
               <img 
@@ -63,7 +65,7 @@ const AppointmentPage = () => {
               <div className="services">
                 <h4>Services:</h4>
                 <ul>
-                  {clinic.services.slice(0, 3).map((service, index) => (
+                  {clinic.services?.slice(0, 3).map((service, index) => (
                     <li key={index}>{service}</li>
                   ))}
                 </ul>
