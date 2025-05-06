@@ -4,19 +4,30 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test:unit": "mocha tests/unit/*.test.js",
+    "test:integration": "mocha tests/integration/*.test.js"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "axios": "^1.8.3",
-    "bcryptjs": "^3.0.2",
     "cors": "^2.8.5",
     "express": "^4.21.2",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.10.1",
     "multer": "^1.4.5-lts.1",
     "node-fetch": "^3.3.2"
+  },
+  "devDependencies": {
+    "axios": "^1.9.0",
+    "bcryptjs": "^3.0.2",
+    "chai": "^4.5.0",
+    "form-data": "^4.0.2",
+    "jest-mock-axios": "^4.8.0",
+    "mocha": "^11.2.2",
+    "mongodb-memory-server": "^10.1.4",
+    "should": "^13.2.3",
+    "sinon": "^20.0.0",
+    "supertest": "^7.1.0"
   }
 }
