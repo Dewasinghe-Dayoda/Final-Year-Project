@@ -9,5 +9,6 @@ const authMiddleware = require('../middleware/authMiddleware');
 
 router.get('/', getClinics);
 router.get('/:id', getClinicDetails);
+router.get('/book',bookAppointment);
 
 module.exports = router;

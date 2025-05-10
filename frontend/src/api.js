@@ -5,8 +5,9 @@ const API = axios.create({
   timeout: 86400, //24h timeout
   headers: {
     'Content-Type': 'application/json',
+    'Accept': 'application/json'
   },
-  
+  withCredentials: true
 });
 
 // Request interceptor for auth token
@@ -16,32 +17,49 @@ API.interceptors.request.use((config) => {
     config.headers.Authorization = `Bearer ${token}`;
   }
   return config;
+}, (error) => {
+  return Promise.reject(error);
 });
-
-//response interceptor for error handling
+// Response interceptor for error handling
 API.interceptors.response.use(
   (response) => {
     if (response.data?.success === false) {
-      return Promise.rejec(response.data.error);
+      return Promise.reject(response.data.message || 'Request failed');
     }
-    return response;
+    return response.data;
   },
   (error) => {
-    if (error.response?.status === 401) {
-      localStorage.removeItem('token');
-      localStorage.removeItem('userInfo');
-      window.location.href = '/login';
+    if (error.response) {
+      // Server responded with a status code outside 2xx
+      const message = error.response.data?.message || 
+                     error.response.data?.error || 
+                     'An error occurred';
+      
+      if (error.response.status === 401) {
+        localStorage.removeItem('token');
+        localStorage.removeItem('userInfo');
+        window.location.href = '/login';
+      }
+      
+      return Promise.reject(new Error(message));
+    } else if (error.request) {
+      // Request was made but no response received
+      return Promise.reject(new Error('No response from server'));
+    } else {
+      // Something happened in setting up the request
+      return Promise.reject(new Error(error.message));
     }
-    if (error.code === 'ECONNABORTED') {
-      return Promise.reject(new Error('Request timeout'));
-    }
-    return Promise.reject(error);
   }
 );
 
-
-// API Endpoints ==============================================
-
+// API Endpoints 
+// Auth Endpoints
+export const registerUser = (userData) =>
+   API.post('/auth/register', userData);
+export const loginUser = (credentials) =>
+   API.post('/auth/login', credentials);
+export const getUserProfile = () =>
+   API.get('/pages/UserProfile');
 // Prediction Endpoints
 export const savePredictionResult = (predictionData) => API.post('/predict/save-result', predictionData, {
   timeout: 10000 // 10 seconds timeout for prediction save
@@ -79,13 +97,16 @@ export const analyzeSkinCondition = async (imageFile, symptoms) => {
 };
 
 // History Endpoints
-export const getHistory = (limit = 10) => API.get(`/history?limit=${limit}`);
-export const getHistoryEntry = (id) => API.get(`/history/${id}`);
-export const deleteHistoryEntry = (id) => API.delete(`/history/${id}`);
+export const getHistory = (limit = 10) =>
+   API.get(`/history?limit=${limit}`);
+export const getHistoryEntry = (id) => 
+  API.get(`/history/${id}`);
+export const deleteHistoryEntry = (id) =>
+   API.delete(`/history/${id}`);
 
 // User Endpoints
-export const getUserProfile = () => API.get('/profile');
-export const updateProfile = (profileData) => API.put('/profile', profileData);
+export const updateProfile = (profileData) => 
+  API.put('/profile', profileData);
 
 // Enhanced Symptoms Endpoints
 export const getSymptomQuestions = (disease) => 
@@ -111,11 +132,27 @@ export const getClinics = async (location, radius = 10) => {
     throw error;
   }
 };
-export const getClinicDetails = (id) => {
-  if (!id || !/^[0-9a-fA-F]{24}$/.test(id)) {
-    return Promise.reject(new Error('Invalid clinic ID format'));
+export const getClinicDetails = async (id) => {
+  try {
+    if (!id || !/^[0-9a-fA-F]{24}$/.test(id)) {
+      throw new Error('Invalid clinic ID format');
+    }
+    
+    const response = await API.get(`/clinics/${id}`);
+    
+    if (response.error) {
+      throw new Error(response.error);
+    }
+    
+    if (!response.data) {
+      throw new Error('No clinic data received');
+    }
+    
+    return response;
+  } catch (error) {
+    console.error('Error fetching clinic details:', error);
+    return { error: error.message || 'Failed to fetch clinic details' };
   }
-  return API.get(`/clinics/${id}`);
 };
 
 export const bookAppointment = (bookingData) => {
@@ -132,12 +169,17 @@ export const analyzeSymptoms = (symptoms) =>
   });
 
   // Appointment Endpoints
-export const getAppointments = () => API.get('/appointments');
-export const cancelAppointment = (id) => API.delete(`/appointments/${id}`);
+export const getAppointments = () => 
+  API.get('/appointments');
+export const cancelAppointment = (id) => 
+  API.delete(`/appointments/${id}`);
 
 // Notification Endpoints
-export const getNotifications = () => API.get('/notifications');
-export const markNotificationAsRead = (id) => API.put(`/notifications/${id}/read`);
-export const deleteNotification = (id) => API.delete(`/notifications/${id}`);
+export const getNotifications = () =>
+  API.get('/notifications');
+export const markNotificationAsRead = (id) => 
+  API.put(`/notifications/${id}/read`);
+export const deleteNotification = (id) => 
+  API.delete(`/notifications/${id}`);
 
 export default API;

@@ -4,7 +4,7 @@ import { getClinics } from '../api';
 import '../styles/AppointmentPage.css';
 
 const AppointmentPage = () => {
-  const [clinics, setClinics] = useState([]); // Initialize as empty array
+  const [clinics, setClinics] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const navigate = useNavigate();
@@ -14,25 +14,37 @@ const AppointmentPage = () => {
       try {
         setLoading(true);
         setError(null);
+        
         const response = await getClinics('Colombo', 10);
         
-        // Ensure response.data is an array before setting state
-        if (response.data && Array.isArray(response.data)) {
-          setClinics(response.data);
-        } else {
-          throw new Error("Invalid clinics data format");
+        if (response.error) {
+          throw new Error(response.error);
         }
+
+        if (!response.data) {
+          throw new Error("No clinics data received");
+        }
+
+        setClinics(Array.isArray(response.data) ? response.data : []);
       } catch (error) {
         console.error("API Error:", error);
         setError(error.message || "Failed to load clinics. Please try again.");
-        setClinics([]); // Reset to empty array on error
+        setClinics([]);
       } finally {
         setLoading(false);
       }
     };
 
     fetchClinics();
-  }, [navigate]);
+  }, []);
+
+  const handleClinicClick = (clinicId) => {
+    if (!clinicId) {
+      console.error("Invalid clinic ID");
+      return;
+    }
+    navigate(`/clinics/${clinicId}`);
+  };
 
   return (
     <div className="appointment-container">
@@ -42,13 +54,16 @@ const AppointmentPage = () => {
       {error && <p className="error-message">{error}</p>}
 
       <div className="clinics-grid">
-        {/* Safely map over clinics array */}
-        {Array.isArray(clinics) && clinics.map(clinic => (
+        {clinics.map(clinic => (
           <div key={clinic._id} className="clinic-card">
             <div className="clinic-image">
               <img 
                 src={`/images/clinics/${clinic.images?.[0] || 'default-clinic.jpg'}`} 
                 alt={clinic.name} 
+                onError={(e) => {
+                  e.target.onerror = null;
+                  e.target.src = '/images/clinics/default-clinic.jpg';
+                }}
               />
             </div>
             
@@ -73,7 +88,7 @@ const AppointmentPage = () => {
               
               <div className="clinic-actions">
                 <button 
-                  onClick={() => navigate(`/clinics/${clinic._id}`)}
+                  onClick={() => handleClinicClick(clinic._id)}
                   className="details-btn"
                 >
                   See More Details

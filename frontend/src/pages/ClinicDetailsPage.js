@@ -24,64 +24,73 @@ const ClinicDetailsPage = () => {
         setLoading(true);
         setError(null);
 
-        if (!id || !/^[0-9a-fA-F]{24}$/.test(id)) {
-          throw new Error('Invalid clinic ID format');
+        if (!id) {
+          throw new Error('Clinic ID is required');
         }
 
         const response = await getClinicDetails(id);
         
-        if (response.data?.success) {
-          setClinic(response.data.data);
-        } else {
-          throw new Error(response.data?.error || 'Failed to load clinic details');
+        if (!response) {
+          throw new Error('No response received from server');
         }
+
+        if (response.error) {
+          throw new Error(response.error);
+        }
+
+        if (!response.data) {
+          throw new Error('Clinic data not found');
+        }
+
+        setClinic(response.data);
       } catch (error) {
         console.error("Error fetching clinic details:", error);
-        setError(error.message);
-        navigate('/clinics');
+        setError(error.message || 'Failed to load clinic details');
       } finally {
         setLoading(false);
       }
     };
 
     fetchClinicDetails();
-  }, [id, navigate]);
+  }, [id]);
 
   const getAvailableDoctors = () => {
-    if (!selectedDate) return [];
+    if (!selectedDate || !clinic?.doctors) return [];
     const day = selectedDate.toLocaleDateString('en-US', { weekday: 'long' });
-    return clinic?.doctors?.filter(doctor => 
+    return clinic.doctors.filter(doctor => 
       doctor.availability?.some(a => a.day === day)
     ) || [];
   };
 
   const getAvailableTimes = () => {
-    if (!selectedDoctor || !selectedDate) return [];
+    if (!selectedDoctor || !selectedDate || !clinic?.doctors) return [];
     const day = selectedDate.toLocaleDateString('en-US', { weekday: 'long' });
-    return clinic?.doctors
-      ?.find(d => d.name === selectedDoctor)
-      ?.availability
-      ?.find(a => a.day === day)
-      ?.slots || [];
+    const doctor = clinic.doctors.find(d => d.name === selectedDoctor);
+    if (!doctor || !doctor.availability) return [];
+    
+    const availability = doctor.availability.find(a => a.day === day);
+    return availability?.slots || [];
   };
 
   const handleBooking = async () => {
     try {
-      // Validate user is logged in
       const userId = localStorage.getItem('userId');
       if (!userId) {
         throw new Error('Please login to book an appointment');
       }
 
-      // Validate form inputs
       if (!selectedDate || !selectedDoctor || !selectedTime) {
         throw new Error('Please select date, doctor and time');
+      }
+
+      if (!clinic?._id) {
+        throw new Error('Invalid clinic information');
       }
 
       setLoading(true);
       setError(null);
 
-      const response = await bookAppointment({
+      const bookingResponse = await bookAppointment({
         clinicId: clinic._id,
         doctorName: selectedDoctor,
         date: selectedDate.toISOString().split('T')[0],
@@ -90,14 +99,17 @@ const ClinicDetailsPage = () => {
         patientId: userId
       });
 
-      if (!response.data?.success) {
-        throw new Error(response.data?.error || 'Booking failed');
+      if (bookingResponse.error) {
+        throw new Error(bookingResponse.error);
       }
 
-      setBookingData(response.data.booking);
+      if (!bookingResponse.booking) {
+        throw new Error('Booking failed - no data returned');
+      }
+
+      setBookingData(bookingResponse.booking);
       setBookingSuccess(true);
       
-      // Reset form
       setSelectedDoctor('');
       setSelectedDate(null);
       setSelectedTime('');
@@ -107,7 +119,6 @@ const ClinicDetailsPage = () => {
       console.error("Booking Error:", error);
       setError(error.message);
       
-      // Redirect to login if not authenticated
       if (error.message.includes('authenticated') || error.message.includes('login')) {
         navigate('/login');
       }
@@ -248,11 +259,11 @@ const ClinicDetailsPage = () => {
               >
                 <option value="">Select time</option>
                 {getAvailableTimes().map(time => (
-        <option key={time} value={time}>{time}</option>
-      ))}
-    </select>
-  </div>
-)}
+                  <option key={time} value={time}>{time}</option>
+                ))}
+              </select>
+            </div>
+          )}
 
           <div className="form-group">
             <label>Notes (Optional):</label>
