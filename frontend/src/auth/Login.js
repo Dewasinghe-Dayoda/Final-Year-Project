@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import '../styles/Auth.css';
 
 const Login = () => {
@@ -51,6 +51,9 @@ const Login = () => {
                 />
                 <button type="submit">Login</button>
             </form>
+            <div className="auth-link">
+                Not registered yet? <Link to="/register">Signup now</Link>
+            </div>
         </div>
     );
 };

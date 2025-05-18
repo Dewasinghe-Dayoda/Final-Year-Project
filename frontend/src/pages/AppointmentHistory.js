@@ -10,19 +10,28 @@ const AppointmentHistory = () => {
   const [error, setError] = useState(null);
   const navigate = useNavigate();
 
-  useEffect(() => {
-    const fetchAppointments = async () => {
-      try {
-        setLoading(true);
-        const { data } = await getAppointments();
-        setAppointments(data.appointments);
-      } catch (err) {
-        setError(err.response?.data?.error || 'Failed to fetch appointments');
-      } finally {
-        setLoading(false);
+  const fetchAppointments = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      
+      const response = await getAppointments();
+      
+      if (response.error) {
+        throw new Error(response.error);
       }
-    };
 
+      setAppointments(response.appointments || []);
+    } catch (err) {
+      console.error("Fetch error:", err);
+      setError(err.message || 'Failed to fetch appointments. Please try again.');
+      setAppointments([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
     fetchAppointments();
   }, []);
 
@@ -34,7 +43,7 @@ const AppointmentHistory = () => {
           appt._id === id ? { ...appt, status: 'cancelled' } : appt
         ));
       } catch (err) {
-        setError(err.response?.data?.error || 'Failed to cancel appointment');
+        setError(err.message || 'Failed to cancel appointment');
       }
     }
   };

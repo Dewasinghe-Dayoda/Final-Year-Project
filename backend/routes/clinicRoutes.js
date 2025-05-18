@@ -2,13 +2,11 @@ const express = require('express');
 const router = express.Router();
 const { 
   getClinics, 
-  bookAppointment,
   getClinicDetails 
 } = require('../controllers/clinicController');
 const authMiddleware = require('../middleware/authMiddleware');
 
-router.get('/', getClinics);
-router.get('/:id', getClinicDetails);
-router.get('/book',bookAppointment);
+router.get('/', authMiddleware,getClinics);
+router.get('/:id',authMiddleware,getClinicDetails);
 
 module.exports = router;

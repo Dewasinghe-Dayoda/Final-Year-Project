@@ -64,14 +64,14 @@ const Impetigo = () => {
           <img src="/images/impetigo3.jpg" alt="Perioral honey-coloured crusts" className="disease-image" />
           <p className="image-caption">Perioral honey-coloured crusts</p>
         </div>
-        <div className="gallery-item">
+        {/* <div className="gallery-item">
           <img src="/images/impetigo4.jpg" alt="Widespread bullous impetigo" className="disease-image" />
           <p className="image-caption">Widespread bullous impetigo</p>
         </div>
         <div className="gallery-item">
           <img src="/images/impetigo5.jpg" alt="Blister and erosions in bullous impetigo" className="disease-image" />
           <p className="image-caption">Blister and erosions in bullous impetigo</p>
-        </div>
+        </div> */}
       </div>
       <div className="disease-section">
         <h2>Treatment</h2>

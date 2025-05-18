@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { getClinicDetails, bookAppointment } from '../api';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import '../styles/ClinicDetailsPage.css';
+import { getClinicDetails, bookAppointment } from '../api';
 
 const ClinicDetailsPage = () => {
   const { id } = useParams();
@@ -17,30 +17,26 @@ const ClinicDetailsPage = () => {
   const [bookingSuccess, setBookingSuccess] = useState(false);
   const [bookingData, setBookingData] = useState(null);
   const [notes, setNotes] = useState('');
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   useEffect(() => {
+    const checkAuth = () => {
+      const token = localStorage.getItem('token');
+      setIsAuthenticated(!!token);
+    };
+
+    checkAuth();
+
     const fetchClinicDetails = async () => {
       try {
         setLoading(true);
         setError(null);
 
-        if (!id) {
-          throw new Error('Clinic ID is required');
-        }
-
         const response = await getClinicDetails(id);
         
-        if (!response) {
-          throw new Error('No response received from server');
-        }
-
-        if (response.error) {
-          throw new Error(response.error);
-        }
-
-        if (!response.data) {
-          throw new Error('Clinic data not found');
-        }
+        if (!response) throw new Error('No response received from server');
+        if (response.error) throw new Error(response.error);
+        if (!response.data) throw new Error('Clinic data not found');
 
         setClinic(response.data);
       } catch (error) {
@@ -74,17 +70,13 @@ const ClinicDetailsPage = () => {
 
   const handleBooking = async () => {
     try {
-      const userId = localStorage.getItem('userId');
-      if (!userId) {
-        throw new Error('Please login to book an appointment');
+      if (!isAuthenticated) {
+        navigate('/login', { state: { from: `/clinics/${id}` } });
+        return;
       }
 
       if (!selectedDate || !selectedDoctor || !selectedTime) {
         throw new Error('Please select date, doctor and time');
-      }
-
-      if (!clinic?._id) {
-        throw new Error('Invalid clinic information');
       }
 
       setLoading(true);
@@ -95,21 +87,27 @@ const ClinicDetailsPage = () => {
         doctorName: selectedDoctor,
         date: selectedDate.toISOString().split('T')[0],
         time: selectedTime,
-        notes: notes || "Skin condition consultation",
-        patientId: userId
+        notes: notes || "Skin condition consultation"
       });
 
       if (bookingResponse.error) {
+        if (bookingResponse.status === 409) {
+          // Handle conflict - show existing appointment
+          setBookingData({
+            ...bookingResponse.existingAppointment,
+            conflict: true,
+            conflictType: bookingResponse.conflictType
+          });
+          setBookingSuccess(true);
+          return;
+        }
         throw new Error(bookingResponse.error);
       }
 
-      if (!bookingResponse.booking) {
-        throw new Error('Booking failed - no data returned');
-      }
-
-      setBookingData(bookingResponse.booking);
+      setBookingData(bookingResponse);
       setBookingSuccess(true);
       
+      // Reset form
       setSelectedDoctor('');
       setSelectedDate(null);
       setSelectedTime('');
@@ -119,8 +117,10 @@ const ClinicDetailsPage = () => {
       console.error("Booking Error:", error);
       setError(error.message);
       
-      if (error.message.includes('authenticated') || error.message.includes('login')) {
-        navigate('/login');
+      if (error.response?.status === 401) {
+        localStorage.removeItem('token');
+        setIsAuthenticated(false);
+        navigate('/login', { state: { from: `/clinics/${id}` } });
       }
     } finally {
       setLoading(false);
@@ -134,9 +134,21 @@ const ClinicDetailsPage = () => {
   return (
     <div className="clinic-details-container">
       {bookingSuccess && bookingData && (
-        <div className="booking-success">
-          <h3>Booking Confirmed!</h3>
-          <p>Your appointment with Dr. {bookingData.doctorName} has been scheduled.</p>
+        <div className={`booking-success ${bookingData.conflict ? 'conflict' : ''}`}>
+          <h3>
+            {bookingData.conflict 
+              ? bookingData.conflictType === 'user'
+                ? "You already have this appointment"
+                : "Time Slot Unavailable"
+              : "Booking Confirmed!"}
+          </h3>
+          <p>
+            {bookingData.conflict
+              ? bookingData.conflictType === 'user'
+                ? "You've already booked this time slot:"
+                : "This time slot is already booked by another user."
+              : `Your appointment with Dr. ${bookingData.doctorName} has been scheduled.`}
+          </p>
           <p>Date: {new Date(bookingData.date).toLocaleDateString()}</p>
           <p>Time: {bookingData.time}</p>
           <p>Reference: {bookingData.reference}</p>
@@ -148,7 +160,7 @@ const ClinicDetailsPage = () => {
           </button>
         </div>
       )}
-
+      
       <div className="clinic-header">
         <h1>{clinic.name}</h1>
         <p className="address">{clinic.address}</p>

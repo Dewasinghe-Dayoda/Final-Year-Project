@@ -1,19 +1,35 @@
-const Notification = require('../models/Notification');
+const Notification = require('../models/Notification'); // Add this import at the top
 
-// Get user notifications
 const getUserNotifications = async (req, res) => {
   try {
+    console.log('Fetching notifications for user:', req.user.id);
+    
+    if (!req.user?.id) {
+      console.error('No user ID in request');
+      return res.status(400).json({ 
+        success: false,
+        error: "User ID is required" 
+      });
+    }
+
     const notifications = await Notification.find({ userId: req.user.id })
       .sort({ createdAt: -1 })
       .limit(20);
 
-    res.json({
+    console.log('Found notifications:', notifications.length);
+    
+    res.status(200).json({
       success: true,
       notifications
     });
   } catch (error) {
-    console.error("Error fetching notifications:", error);
+    console.error("Detailed error fetching notifications:", {
+      error: error.message,
+      stack: error.stack,
+      userId: req.user?.id
+    });
     res.status(500).json({ 
+      success: false,
       error: "Server error while fetching notifications" 
     });
   }
@@ -31,16 +47,20 @@ const markAsRead = async (req, res) => {
     );
 
     if (!notification) {
-      return res.status(404).json({ error: "Notification not found" });
+      return res.status(404).json({ 
+        success: false,
+        error: "Notification not found" 
+      });
     }
 
-    res.json({
+    res.status(200).json({
       success: true,
       notification
     });
   } catch (error) {
     console.error("Error marking notification:", error);
     res.status(500).json({ 
+      success: false,
       error: "Server error while updating notification" 
     });
   }
@@ -57,16 +77,20 @@ const deleteNotification = async (req, res) => {
     });
 
     if (!notification) {
-      return res.status(404).json({ error: "Notification not found" });
+      return res.status(404).json({ 
+        success: false,
+        error: "Notification not found" 
+      });
     }
 
-    res.json({
+    res.status(200).json({
       success: true,
       message: "Notification deleted"
     });
   } catch (error) {
     console.error("Error deleting notification:", error);
     res.status(500).json({ 
+      success: false,
       error: "Server error while deleting notification" 
     });
   }

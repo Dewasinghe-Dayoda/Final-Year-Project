@@ -8,7 +8,7 @@ const Footer = () => {
       <div className="footer-container">
         {/* Left Side - Logo and Name */}
         <div className="footer-logo">
-          <img src="/SkinProScan_logo1.png" alt="SkinPro Logo" />
+          <img src="/SkinProScan_logo.png" alt="SkinPro Logo" />
           <h2>SkinProScan</h2>
         </div>
 
@@ -26,7 +26,7 @@ const Footer = () => {
         <div className="footer-contact">
           <p>Email: support@skinpro.com</p>
           <p>Phone: +94 123 456 789</p>
-          <p>Address: NSBM Green University, Sri Lanka</p>
+          <p>Address: SkinProScan, Sri Lanka</p>
 
           {/* Social Media Links */}
           <div className="footer-social">
@@ -40,7 +40,7 @@ const Footer = () => {
 
       {/* Bottom Copyright & Disclaimer */}
       <div className="footer-bottom">
-        <p>© {new Date().getFullYear()} SkinPro. All Rights Reserved.</p>
+        <p>© {new Date().getFullYear()} SkinProScan. All Rights Reserved.</p>
         <p>Disclaimer: This AI tool is not a substitute for professional medical advice.</p>
       </div>
     </footer>

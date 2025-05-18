@@ -1,6 +1,7 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
+const { createNotification } = require('../services/notificationService');
 
 // Registration function
 const registerUser = async (req, res) => {
@@ -76,6 +77,15 @@ const loginUser = async (req, res) => {
         console.error('Login error:', error);
         res.status(500).json({ error: error.message });
     }
+    
+    const user = await User.findOne({ email });
+    //login notification
+    await createNotification(
+  user._id, 
+  'system', 
+  'Login Successful', 
+  `You logged in successfully at ${new Date().toLocaleString()}`
+);
 };
 
 // Get user profile

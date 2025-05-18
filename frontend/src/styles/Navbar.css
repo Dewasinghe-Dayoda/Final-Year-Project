@@ -5,17 +5,12 @@
   background: linear-gradient(to right, #084974, #bd403c);
   padding: 10px 20px;
   color: white;
+  position: relative;
 }
 
 .navbar-logo {
   display: flex;
   align-items: center;
-}
-
-.logo-image {
-  height: 40px;
-  width: auto;
-  margin-right: 10px;
 }
 
 .logo-text {
@@ -27,9 +22,11 @@
   list-style: none;
   display: flex;
   gap: 20px;
+  align-items: center;
+  margin: 0;
 }
 
-.nav-links li a{
+.nav-links li a {
   color: rgb(255, 255, 255);
   text-decoration: none;
   font-size: 15px;
@@ -42,4 +39,39 @@
 .active-link {
   font-weight: bold;
   color: #084974;
-  }
+}
+
+.hamburger-btn {
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  color: white;
+}
+
+.hamburger-wrapper {
+  position: relative;
+}
+
+.dropdown-menu {
+  position: absolute;
+  top: 40px;
+  right: 0;
+  background: #333;
+  border-radius: 8px;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  z-index: 10;
+}
+
+.dropdown-link {
+  padding: 8px 12px;
+  color: white;
+  text-decoration: none;
+  font-size: 14px;
+}
+
+.dropdown-link:hover {
+  background: #555;
+}

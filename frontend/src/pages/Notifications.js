@@ -12,39 +12,68 @@ const Notifications = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  
+
   useEffect(() => {
+    let isMounted = true;
+    
     const fetchNotifications = async () => {
       try {
         setLoading(true);
-        const { data } = await getNotifications();
-        setNotifications(data.notifications);
+        setError(null);
+        const response = await getNotifications();
+        
+        if (isMounted) {
+          if (response && response.data) {
+            // Handle both response structures
+            const notificationsData = response.data.notifications || response.data;
+            setNotifications(Array.isArray(notificationsData) ? notificationsData : []);
+          } else {
+            setNotifications([]);
+          }
+        }
       } catch (err) {
-        setError(err.response?.data?.error || 'Failed to fetch notifications');
+        console.error("Error fetching notifications:", err);
+        if (isMounted) {
+          setError(err.response?.data?.error || err.message || 'Failed to fetch notifications');
+        }
       } finally {
-        setLoading(false);
+        if (isMounted) {
+          setLoading(false);
+        }
       }
     };
 
     fetchNotifications();
+
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   const handleMarkAsRead = async (id) => {
     try {
       await markNotificationAsRead(id);
-      setNotifications(notifications.map(notif => 
-        notif._id === id ? { ...notif, read: true } : notif
-      ));
+      setNotifications(prevNotifications => 
+        prevNotifications.map(notif => 
+          notif._id === id ? { ...notif, read: true } : notif
+        )
+      );
     } catch (err) {
-      setError(err.response?.data?.error || 'Failed to mark as read');
+      console.error("Error marking as read:", err);
+      setError(err.response?.data?.error || err.message || 'Failed to mark as read');
     }
   };
 
   const handleDelete = async (id) => {
     try {
       await deleteNotification(id);
-      setNotifications(notifications.filter(notif => notif._id !== id));
+      setNotifications(prevNotifications => 
+        prevNotifications.filter(notif => notif._id !== id)
+      );
     } catch (err) {
-      setError(err.response?.data?.error || 'Failed to delete notification');
+      console.error("Error deleting notification:", err);
+      setError(err.response?.data?.error || err.message || 'Failed to delete notification');
     }
   };
 
@@ -66,11 +95,21 @@ const Notifications = () => {
               key={notification._id} 
               className={`notification-item ${notification.read ? 'read' : 'unread'}`}
             >
-              <div className="notification-content">
+              {/* <div className="notification-content">
                 <h3>{notification.title}</h3>
                 <p>{notification.message}</p>
                 <small>{format(new Date(notification.createdAt), 'PPPpp')}</small>
-              </div>
+              </div> */}
+              <div className="notification-content">
+  <div className="notification-header">
+    <span className="notification-icon">
+      {getNotificationIcon(notification.type)}
+    </span>
+    <h3>{notification.title}</h3>
+  </div>
+  <p>{notification.message}</p>
+  <small>{format(new Date(notification.createdAt), 'PPPpp')}</small>
+</div>
               
               <div className="notification-actions">
                 {!notification.read && (

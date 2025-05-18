@@ -41,3 +41,17 @@
     border: 1px solid #f5c6cb;
     border-radius: 4px;
 }
+
+.auth-link {
+    margin-top: 15px;
+    text-align: center;
+}
+
+.auth-link a {
+    color: #007bff;
+    text-decoration: none;
+}
+
+.auth-link a:hover {
+    text-decoration: underline;
+}

@@ -15,7 +15,7 @@ const Contact = () => {
           <h2>Get In Touch</h2>
           <p>Email: <a href="mailto:support@skinpro.com">support@skinpro.com</a></p>
           <p>Phone: +94 123 456 789</p>
-          <p>Address: 123 SkinPro Lane, Health City, Country</p>
+          <p>Address: SkinProScan, Sri Lanka.</p>
         </div>
         <div className="contact-form">
           <h2>Send Us a Message</h2>
