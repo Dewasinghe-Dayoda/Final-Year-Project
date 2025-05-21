@@ -58,7 +58,7 @@ const HistorySchema = new mongoose.Schema({
     },
     details: [String] // Specific recommendations
   },
-  // Keeping the old structure for backward compatibility
+  
   legacyResults: {
     predictionResults: [{
       disease: String,

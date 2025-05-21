@@ -25,7 +25,7 @@ router.post('/predict', upload.single('image'), async (req, res) => {
 
     // Forward the image to Python backend
     const pythonApiResponse = await axios.post(
-      'http://localhost:8000/predict', // Your Python API endpoint
+      'http://localhost:8000/predict', //Python API endpoint
       { image: req.file.path }, // Or send as FormData
       { headers: { 'Content-Type': 'multipart/form-data' } }
     );

@@ -1,4 +1,3 @@
-// frontend/src/tests/unit/Login.test.js
 import { render, screen, fireEvent } from '@testing-library/react';
 import Login from '../../auth/Login';
 

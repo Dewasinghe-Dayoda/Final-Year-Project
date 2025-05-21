@@ -12,7 +12,18 @@ const Notifications = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  
+  const getNotificationIcon = (type) => {
+    switch(type) {
+      case 'appointment':
+        return <i className="fas fa-calendar-check"></i>;
+      case 'system':
+        return <i className="fas fa-exclamation-circle"></i>;
+      case 'reminder':
+        return <i className="fas fa-bell"></i>;
+      default:
+        return <i className="fas fa-info-circle"></i>;
+    }
+  };
 
   useEffect(() => {
     let isMounted = true;
@@ -95,21 +106,16 @@ const Notifications = () => {
               key={notification._id} 
               className={`notification-item ${notification.read ? 'read' : 'unread'}`}
             >
-              {/* <div className="notification-content">
-                <h3>{notification.title}</h3>
+              <div className="notification-content">
+                <div className="notification-header">
+                  <span className="notification-icon">
+                    {getNotificationIcon(notification.type)}
+                  </span>
+                  <h3>{notification.title}</h3>
+                </div>
                 <p>{notification.message}</p>
                 <small>{format(new Date(notification.createdAt), 'PPPpp')}</small>
-              </div> */}
-              <div className="notification-content">
-  <div className="notification-header">
-    <span className="notification-icon">
-      {getNotificationIcon(notification.type)}
-    </span>
-    <h3>{notification.title}</h3>
-  </div>
-  <p>{notification.message}</p>
-  <small>{format(new Date(notification.createdAt), 'PPPpp')}</small>
-</div>
+              </div>
               
               <div className="notification-actions">
                 {!notification.read && (

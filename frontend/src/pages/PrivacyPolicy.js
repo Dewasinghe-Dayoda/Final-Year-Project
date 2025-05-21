@@ -1,6 +1,3 @@
-// 📌 Purpose: Explain data handling, AI limitations, and user rights.
-// 📌 Location: src/pages/PrivacyPolicy.js
-
 import React from "react";
 import "../styles/PrivacyPolicy.css";
 

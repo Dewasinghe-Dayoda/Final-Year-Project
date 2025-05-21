@@ -50,7 +50,7 @@ def split_train_validation(train_folder, validation_folder, test_size=0.2):
             shutil.move(src, dst)
             print(f"Moved {src} to {dst}")
 
-# Path to your dataset folder
+# Path to dataset folder
 dataset_folder = 'skin-disease-dataset'
 
 # Step 1: Convert all images to .jpg

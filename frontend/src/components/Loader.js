@@ -1,5 +1,3 @@
-//A loading animation while the AI model is processing images.
-// src/components/Loader.js
 import React from "react";
 
 const Loader = () => {

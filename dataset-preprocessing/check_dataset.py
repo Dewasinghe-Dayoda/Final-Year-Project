@@ -1,36 +1,8 @@
 from PIL import Image
 import os
-# checking if all the images are 128x128 and jpg
-# def check_images(folder_path):
-#     incorrect_images = []
-    
-#     for root, _, files in os.walk(folder_path):
-#         for file in files:
-#             img_path = os.path.join(root, file)
-#             try:
-#                 with Image.open(img_path) as img:
-#                     if img.size != (128, 128) or img.format != 'JPEG':
-#                         incorrect_images.append((img_path, img.size, img.format))
-#             except Exception as e:
-#                 print(f"Error opening {img_path}: {e}")
 
-#     if incorrect_images:
-#         print("Images that do not match 128x128 and JPG format:")
-#         for img_path, size, img_format in incorrect_images:
-#             print(f"{img_path} - Size: {size}, Format: {img_format}")
-#     else:
-#         print("All images are correctly formatted (128x128 JPG).")
-
-# # Check all datasets
 dataset_folder = 'skin-disease-dataset'
-# print("\nChecking Train Set:")
-# check_images(os.path.join(dataset_folder, 'train_set'))
-# print("\nChecking Test Set:")
-# check_images(os.path.join(dataset_folder, 'test_set'))
-# print("\nChecking Validation Set:")
-# check_images(os.path.join(dataset_folder, 'validation_set'))
-
-#checking number of iages in each dataset 
+ 
 def count_images(folder_path):
     total = 0
     class_counts = {}

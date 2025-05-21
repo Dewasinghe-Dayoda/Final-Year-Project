@@ -1,4 +1,3 @@
-// backend/controllers/historyController.js
 const History = require('../models/History');
 
 // Save prediction history
@@ -23,4 +22,7 @@ const getUserHistory = async (req, res) => {
     }
 };
 
-module.exports = { saveHistory, getUserHistory };
+module.exports = { 
+    saveHistory, 
+    getUserHistory 
+};

@@ -1,20 +1,20 @@
 .logout-button {
-  padding: 8px 16px; /* Reduced padding to make it more compact */
+  padding: 8px 16px; 
   margin-top: 20px;
   background-color: #dc3545;
   color: white;
   border: none;
   border-radius: 5px;
   cursor: pointer;
-  font-size: 0.9rem; /* Slightly smaller font */
-  width: auto; /* Ensures button only takes needed space */
-  min-width: 80px; /* Minimum width to prevent too narrow */
-  transition: all 0.3s ease; /* Smooth hover transition */
+  font-size: 0.9rem; 
+  width: auto; 
+  min-width: 80px; 
+  transition: all 0.3s ease; 
 }
 
 .logout-button:hover {
   background-color: #c82333;
-  transform: scale(1.02); /* Subtle hover effect */
+  transform: scale(1.02); 
 }
 
 /* Loading and error message styles */

@@ -1,6 +1,6 @@
 import React from "react";
 import "../styles/FAQ.css";
-import faqIcon from "../assets/faq-icon.png"; // Import the FAQ icon
+import faqIcon from "../assets/faq-icon.png"; 
 
 const FAQ = () => {
   const faqs = [

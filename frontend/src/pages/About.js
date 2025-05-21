@@ -1,6 +1,6 @@
 import React from "react";
 import "../styles/About.css";
-import aboutImage from "../assets/about-hero.avif"; // Example image path
+import aboutImage from "../assets/about-hero.avif"; 
 
 const About = () => {
   return (

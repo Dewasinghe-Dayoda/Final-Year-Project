@@ -6,7 +6,7 @@ const request = require('supertest');
 const app = require('../../server');
 
 beforeAll(async () => {
-  // Add any test setup here
+  
 });
 
 describe('API Integration Tests', () => {

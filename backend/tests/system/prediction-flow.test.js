@@ -36,7 +36,7 @@ describe('Skin Prediction System', function () {
         const response = await request(app)
             .post('/api/predict')
             .set('Authorization', `Bearer ${token}`)
-            .attach('file', imagePath); // Ensure the field name is 'file' as per the backend API
+            .attach('file', imagePath); 
 
         // Check if the response is as expected
         if (response.status !== 200) {

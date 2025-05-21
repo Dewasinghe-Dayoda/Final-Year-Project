@@ -6,7 +6,7 @@
   }
   
   .contact-hero {
-    background-image: url('../assets/contact.avif'); /* Example image path */
+    background-image: url('../assets/contact.avif'); 
     background-size: cover;
     background-position: center;
     padding: 100px 20px;

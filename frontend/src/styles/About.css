@@ -8,7 +8,7 @@
 }
 
 .about-hero {
-  background-image: url('../assets/about.jpg'); /* Example image path */
+  background-image: url('../assets/about.jpg');
   background-size: cover;
   background-position: center;
   padding: 100px 20px;
@@ -28,11 +28,11 @@
 
 .about-content {
   display: flex;
-  justify-content: center; /* Centers content instead of spacing it apart */
-  align-items: center; /* Aligns content vertically */
-  flex-wrap: wrap; /* Ensures responsiveness */
-  text-align: center; /* Centers text for smaller screens */
-  width: 100%; /* Ensures full width */
+  justify-content: center; 
+  align-items: center; 
+  flex-wrap: wrap; 
+  text-align: center; 
+  width: 100%; 
   max-width: 1200px;
   margin: 0 auto;
   padding: 50px 20px;
@@ -40,15 +40,15 @@
 
 .about-image img {
   width: 100%;
-  max-width: 600px; /* Increase max width */
+  max-width: 600px; 
   border-radius: 10px;
 }
 
 .about-text {
   flex: 1;
   margin-left: 40px;
-  max-width: 600px; /* Ensures text does not shrink too much */
-  text-align: left; /* Align text to left */
+  max-width: 600px; 
+  text-align: left;
 }
 
 .about-text h2 {

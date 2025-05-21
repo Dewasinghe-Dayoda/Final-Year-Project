@@ -131,16 +131,6 @@
   background: #2980b9;
 }
 
-/* @media (max-width: 768px) {
-  .clinics-grid {
-    grid-template-columns: 1fr;
-  }
-  
-  .appointment-container {
-    padding: 1rem;
-  }
-} */
-
 .appointment-history-container {
   max-width: 900px;
   margin: 2rem auto;
