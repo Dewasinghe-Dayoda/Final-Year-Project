@@ -34,7 +34,7 @@ def augment_images(class_folder, target_count):
         img_name = random.choice(image_files)
         img_path = os.path.join(class_folder, img_name)
         img = Image.open(img_path)
-        img_array = np.array(img)  
+        img_array = np.array(img)  #image array
 
         augmented_images = datagen.flow(
             img_array.reshape((1,) + img_array.shape),
