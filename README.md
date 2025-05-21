@@ -1,7 +1,10 @@
 SkinProScan - A Web-Based AI Solution for Preliminary Detection and Awareness 
 of Bacterial & Fungal Skin Diseases
-GitHub link of the project - 
-Project Summary: https://github.com/Dewasinghe-Dayoda/Final-Year-Project
+ 
+ GitHub link of the project - 
+ https://github.com/Dewasinghe-Dayoda/Final-Year-Project
+ 
+ Project Summary:
 
 SkinProScan is a full-stack MERN web application designed to detect and raise 
 awareness about bacterial and fungal skin diseases. The system integrates AI-powered 
